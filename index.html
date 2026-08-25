@@ -73,7 +73,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 /* TODAY CARD */
 .tc{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:24px 20px 20px;margin-bottom:14px}
-.today-value{font-size:46px;font-weight:700;line-height:1;text-align:center;transition:color .2s}
+.stepper{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:2px}
+.stepper-btn{width:42px;height:42px;border-radius:50%;border:none;background:var(--sur2);color:var(--txt);font-size:22px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s;flex-shrink:0}
+.stepper-btn:active{background:var(--grn-dim);color:var(--grn);transform:scale(.92)}
+.today-value-input{width:110px;text-align:center;font-size:46px;font-weight:700;line-height:1;border:none;background:transparent;font-family:inherit;outline:none;padding:0;-moz-appearance:textfield;transition:color .2s}
+.today-value-input::-webkit-outer-spin-button,.today-value-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .today-value-lbl{font-size:12px;color:var(--mut);text-align:center;margin-top:5px;margin-bottom:14px}
 .target-chip-wrap{display:flex;justify-content:center;margin-bottom:20px}
 .target-chip{display:flex;align-items:center;gap:6px;padding:7px 15px;background:#FFF3E4;border:none;border-radius:100px;box-shadow:0 2px 7px rgba(201,127,74,.20);font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;transition:transform .12s}
@@ -143,7 +147,7 @@ input[type=range].pgslider::-moz-range-thumb{
 .slbl{font-size:9px;color:var(--mut);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
 
 /* KONUM CARD */
-.loc-card{background:linear-gradient(135deg,var(--sur) 0%,var(--sur2) 100%);border:1px solid var(--bor);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.loc-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:18px;margin-bottom:14px}
 .loc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .loc-title{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mut)}
 .loc-total{font-size:11px;color:var(--mut);margin-bottom:12px}
@@ -204,18 +208,18 @@ input[type=range].pgslider::-moz-range-thumb{
 
 /* KİTAPLARIM LİSTESİ */
 .empty-books{text-align:center;padding:20px 10px;color:var(--mut);font-size:12.5px;line-height:1.7}
-.book-item{display:flex;gap:11px;align-items:center;background:var(--sur);border:1px solid var(--bor);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px}
-.book-item-cover{width:36px;height:50px;object-fit:cover;border-radius:5px;flex-shrink:0;border:1px solid var(--bor);background:var(--sur2)}
-.book-item-cover.ph{display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--mut2)}
+.book-item{display:flex;gap:14px;align-items:center;background:var(--sur);border:1px solid var(--bor);border-radius:12px;padding:12px 14px;margin-bottom:10px;transition:box-shadow .15s}
+.book-item-cover{width:42px;height:58px;object-fit:cover;border-radius:7px;flex-shrink:0;background:var(--sur2);box-shadow:0 3px 8px rgba(74,63,46,.16)}
+.book-item-cover.ph{display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--mut2)}
 .book-item-info{flex:1;min-width:0}
 .book-item-name{font-size:13.5px;font-weight:600;color:var(--txt);line-height:1.3;overflow-wrap:break-word}
 .book-item-pages{font-size:11px;color:var(--mut);margin-top:3px}
-.book-item-bar{height:4px;background:var(--sur2);border-radius:2px;overflow:hidden;margin-top:6px}
-.book-item-fill{height:4px;border-radius:2px;background:var(--grn);transition:width .5s}
-.book-item-actions{display:flex;gap:5px;flex-shrink:0}
-.bi-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--bor);background:var(--sur2);color:var(--mut);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
-.bi-btn:active{background:var(--grn-dim);color:var(--grn);border-color:var(--grn)}
-.bi-btn.bi-del:active{background:var(--red-dim);color:var(--red);border-color:var(--red)}
+.book-item-bar{height:5px;background:var(--sur2);border-radius:3px;overflow:hidden;margin-top:7px}
+.book-item-fill{height:5px;border-radius:3px;background:linear-gradient(90deg,var(--grn),var(--gold));transition:width .5s}
+.book-item-actions{display:flex;gap:4px;flex-shrink:0}
+.bi-btn{width:30px;height:30px;border-radius:50%;border:none;background:var(--sur2);color:var(--mut);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.bi-btn:active{background:var(--grn-dim);color:var(--grn)}
+.bi-btn.bi-del:active{background:var(--red-dim);color:var(--red)}
 .loc-save-btn{padding:11px 20px;background:var(--sur2);border:1px solid var(--grn);border-radius:9px;font-size:13px;font-weight:600;color:var(--grn);cursor:pointer;transition:all .15s}
 .loc-save-btn:active{background:var(--grn-dim)}
 
@@ -399,15 +403,15 @@ input[type=range].pgslider::-moz-range-thumb{
 
     <!-- Bugün -->
     <div class="tc">
-      <div class="today-value" id="slider-val" style="color:#B7C08F">—</div>
+      <div class="stepper">
+        <button class="stepper-btn" type="button" onclick="stepValue(-1)">−</button>
+        <input type="number" inputmode="numeric" class="today-value-input" id="pgslider" min="0" value="1" style="color:#B7C08F" oninput="onSlider(this.value)">
+        <button class="stepper-btn" type="button" onclick="stepValue(1)">+</button>
+      </div>
       <div class="today-value-lbl" id="slider-sub">sayfa</div>
 
       <div class="target-chip-wrap">
         <button class="target-chip" id="target-chip" onclick="snapToTarget()">🎯 &nbsp;<span id="target-chip-text"></span></button>
-      </div>
-
-      <div class="range-track" id="slider-wrap">
-        <input type="range" class="pgslider" id="pgslider" min="1" max="50" value="1" oninput="onSlider(this.value)">
       </div>
 
       <!-- Birden fazla kitaptan okuduysan: kitap değiştirdikçe eklenenlerin özeti -->
@@ -709,29 +713,29 @@ function initToday(){
   }
 }
 
-/* Hazır rozet: kaydırıcıyı doğrudan bugünkü hedefe atlatır */
+/* Hazır rozet: değeri doğrudan bugünkü hedefe atlatır */
 function snapToTarget(){
   const target=LEVELS[S.levelIndex].pages;
   document.getElementById('pgslider').value=target;
   onSlider(target);
 }
 
-/* Kaydırıcı her hareket ettiğinde, o an seçili kitabın bugünkü sayfasını canlı günceller */
-function onSlider(val){
-  val=parseInt(val);
+/* +/- butonları: mevcut değeri bir artırır/azaltır */
+function stepValue(delta){
+  const inp=document.getElementById('pgslider');
+  let val=(parseInt(inp.value)||0)+delta;
+  if(val<0) val=0;
+  inp.value=val;
+  onSlider(val);
+}
+
+/* Değer her değiştiğinde (yazarak ya da +/- ile), o an seçili kitabın bugünkü sayfasını canlı günceller.
+   Yazarken input boş/geçersiz olabileceği için ekrandaki alanı asla geri yazmıyoruz — sadece rengi ve state'i günceller. */
+function onSlider(rawVal){
+  const val = isNaN(parseInt(rawVal)) ? 0 : Math.max(0, parseInt(rawVal));
   const stage=getStage(val);
   const {color}=STAGE_COLORS[stage];
-
-  // fill track gradient
-  const pct=((val-1)/49)*100;
-  const slider=document.getElementById('pgslider');
-  slider.style.setProperty('--thumb-color',color);
-  slider.style.background=`linear-gradient(to right, ${color} ${pct}%, var(--sur2) ${pct}%)`;
-  document.documentElement.style.setProperty('--thumb-color',color);
-
-  // value display
-  document.getElementById('slider-val').textContent=val;
-  document.getElementById('slider-val').style.color=color;
+  document.getElementById('pgslider').style.color=color;
 
   // seçili kitap için o anki değeri yaz, toplamı yeniden hesapla
   if(S.books && S.books.length && S.selectedBookId){
@@ -739,7 +743,7 @@ function onSlider(val){
     S.todaySessions[S.selectedBookId]=val;
     sel=computeTodayTotal();
   } else {
-    sel=val; // kitap yoksa kaydırıcının kendisi toplamdır
+    sel=val; // kitap yoksa alanın kendisi toplamdır
   }
   renderSessionsSummary();
 }
@@ -1199,8 +1203,8 @@ function renderMe(){
       btnOkudum.classList.add('on');
     } else {
       btnOkumadim.classList.add('off-on');
-      document.getElementById('slider-val').textContent='0';
-      document.getElementById('slider-val').style.color='var(--red)';
+      document.getElementById('pgslider').value=0;
+      document.getElementById('pgslider').style.color='var(--red)';
     }
   }
 
