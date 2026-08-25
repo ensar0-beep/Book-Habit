@@ -72,13 +72,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .chain-card-title{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:14px}
 
 /* TODAY CARD */
-.tc{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:20px;margin-bottom:14px}
-.tc-title{font-size:14px;font-weight:600;text-align:center;color:var(--txt);margin-bottom:8px}
-.target-line{font-size:12px;text-align:center;color:var(--mut);margin-bottom:14px;line-height:1.5}
-.target-line b{color:var(--grn)}
-.target-line .warn-part{color:var(--red)}
-.edit-btn{width:100%;padding:12px;margin-top:10px;background:transparent;border:1px solid var(--bor);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--mut);cursor:pointer;transition:all .15s}
-.edit-btn:active{border-color:var(--grn);color:var(--grn)}
+.tc{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:24px 20px 20px;margin-bottom:14px}
+.today-value{font-size:46px;font-weight:700;line-height:1;text-align:center;transition:color .2s}
+.today-value-lbl{font-size:12px;color:var(--mut);text-align:center;margin-top:5px;margin-bottom:14px}
+.target-chip-wrap{display:flex;justify-content:center;margin-bottom:20px}
+.target-chip{display:flex;align-items:center;gap:6px;padding:7px 15px;background:#FFF3E4;border:none;border-radius:100px;box-shadow:0 2px 7px rgba(201,127,74,.20);font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;transition:transform .12s}
+.target-chip:active{transform:scale(.96)}
 .page-opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
 .popt{background:var(--sur2);border:1.5px solid var(--bor);border-radius:var(--rs);padding:16px 10px;cursor:pointer;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:4px}
 .popt-icon{font-size:22px;margin-bottom:2px}
@@ -88,9 +87,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .popt.sel .popt-label{color:var(--grn)}
 .popt.zero.sel{background:var(--red-dim);border-color:var(--red)}
 .popt.zero.sel .popt-label{color:var(--red)}
-.save-btn{width:100%;padding:15px;background:var(--grn);color:#000;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s}
-.save-btn:disabled{opacity:.3;cursor:not-allowed}
-.save-btn.done{background:var(--sur2);color:var(--mut);border:1px solid var(--bor)}
+.rw-toggle{display:flex;background:var(--sur2);border-radius:100px;padding:4px;gap:2px;margin-bottom:8px}
+.rw-toggle button{flex:1;padding:11px 8px;border:none;border-radius:100px;font-size:13px;font-weight:600;background:transparent;color:var(--mut);cursor:pointer;transition:all .15s}
+.rw-toggle button.on{font-weight:700;background:var(--grn);color:var(--sur);box-shadow:0 2px 6px rgba(125,138,92,.35)}
+.rw-toggle button.off-on{font-weight:700;background:var(--red);color:var(--sur);box-shadow:0 2px 6px rgba(196,89,63,.30)}
+.rw-hint{text-align:center;font-size:10px;color:var(--mut2);margin-bottom:2px}
 .msg{margin-top:11px;padding:11px 14px;border-radius:var(--rs);font-size:13px;line-height:1.5;display:none}
 .msg.on{display:block}
 .msg-ok{background:var(--grn-dim);color:var(--grn)}
@@ -194,13 +195,12 @@ input[type=range].pgslider::-moz-range-thumb{
 
 /* HANGİ KİTAPTAN OKUDUN (SEÇİCİ) */
 .book-pick-wrap{margin-bottom:14px}
-.book-pick-list{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
-.book-pill{flex-shrink:0;display:flex;align-items:center;gap:7px;background:var(--sur);border:1.5px solid var(--bor);border-radius:100px;padding:5px 14px 5px 5px;cursor:pointer;transition:all .15s;max-width:180px}
-.book-pill.sel{border-color:var(--grn);background:var(--grn-dim)}
-.book-pill-cover{width:22px;height:30px;object-fit:cover;border-radius:3px;flex-shrink:0}
-.book-pill-cover.ph{display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--sur2)}
-.book-pill-name{font-size:12.5px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.book-pill.sel .book-pill-name{color:var(--grn-txt)}
+.book-pick-list{display:flex;align-items:center;gap:14px;overflow-x:auto;padding:4px 2px 6px;-webkit-overflow-scrolling:touch}
+.book-pick-item{flex-shrink:0;display:flex;align-items:center;gap:10px;cursor:pointer}
+.book-pick-cover{width:48px;height:66px;object-fit:cover;border-radius:8px;flex-shrink:0;background:var(--sur2);box-shadow:0 3px 8px rgba(74,63,46,.16);transition:box-shadow .15s}
+.book-pick-cover.ph{display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--mut2)}
+.book-pick-item.sel .book-pick-cover{box-shadow:0 0 0 2.5px var(--grn),0 4px 10px rgba(74,63,46,.24)}
+.book-pick-name{font-size:13.5px;font-weight:700;color:var(--grn-txt);white-space:nowrap}
 
 /* KİTAPLARIM LİSTESİ */
 .empty-books{text-align:center;padding:20px 10px;color:var(--mut);font-size:12.5px;line-height:1.7}
@@ -399,24 +399,15 @@ input[type=range].pgslider::-moz-range-thumb{
 
     <!-- Bugün -->
     <div class="tc">
-      <div class="tc-title" id="tc-title">Bugün kaç sayfa okudun?</div>
-      <div class="target-line" id="target-line"></div>
-      <div class="slider-wrap" id="slider-wrap">
-        <div class="slider-top">
-          <div class="slider-val" id="slider-val" style="color:#B7C08F">—</div>
-          <div class="slider-lbl"><span id="slider-lbl-text">Kaydır</span><span id="slider-sub"></span></div>
-        </div>
-        <div class="quick-btns" id="quick-btns">
-          <button onclick="quickSet(1)">1</button>
-          <button onclick="quickSet(5)">5</button>
-          <button onclick="quickSet(10)">10</button>
-          <button onclick="quickSet(20)">20</button>
-          <button onclick="quickSet(30)">30</button>
-          <button onclick="quickSet(50)">50</button>
-        </div>
-        <div class="range-track">
-          <input type="range" class="pgslider" id="pgslider" min="1" max="50" value="1" oninput="onSlider(this.value)">
-        </div>
+      <div class="today-value" id="slider-val" style="color:#B7C08F">—</div>
+      <div class="today-value-lbl" id="slider-sub">sayfa</div>
+
+      <div class="target-chip-wrap">
+        <button class="target-chip" id="target-chip" onclick="snapToTarget()">🎯 &nbsp;<span id="target-chip-text"></span></button>
+      </div>
+
+      <div class="range-track" id="slider-wrap">
+        <input type="range" class="pgslider" id="pgslider" min="1" max="50" value="1" oninput="onSlider(this.value)">
       </div>
 
       <!-- Birden fazla kitaptan okuduysan: kitap değiştirdikçe eklenenlerin özeti -->
@@ -425,10 +416,11 @@ input[type=range].pgslider::-moz-range-thumb{
         <div class="sess-total">Bugün toplam: <span id="sess-total-val">0</span> sayfa</div>
       </div>
 
-      <button class="no-read-btn" id="no-read-btn" onclick="toggleNoRead()">✕ &nbsp;Bugün okumadım</button>
-
-      <button class="save-btn" id="save-btn" disabled onclick="logToday()">Kaydet</button>
-      <button class="edit-btn" id="edit-today-btn" onclick="editToday()" style="display:none">Bugünü düzenle</button>
+      <div class="rw-toggle">
+        <button id="btn-okudum" onclick="commitToday(true)">📖 &nbsp;Okudum</button>
+        <button id="btn-okumadim" onclick="commitToday(false)">✕ &nbsp;Okumadım</button>
+      </div>
+      <div class="rw-hint">Dokununca günlüğüne işlenir</div>
       <div class="msg msg-ok" id="msg-ok"></div>
       <div class="msg msg-warn" id="msg-warn"></div>
     </div>
@@ -695,58 +687,40 @@ function getStage(val){
 }
 
 function buildSlider(){
-  onSlider(1); // init display
+  initToday();
 }
 
-let noRead=false;
-
-function toggleNoRead(){
-  noRead=!noRead;
-  const btn=document.getElementById('no-read-btn');
-  const sw=document.getElementById('slider-wrap');
-  const saveBtn=document.getElementById('save-btn');
-  if(noRead){
-    btn.classList.add('sel');
-    sel=0;
-    S.todaySessions={};
-    saveBtn.disabled=false;
-    document.getElementById('slider-val').textContent='—';
-    document.getElementById('slider-lbl-text').textContent='';
-    document.getElementById('slider-sub').textContent='';
-    document.getElementById('pgslider').disabled=true;
-    sw.style.opacity='.35';
-    renderSessionsSummary();
+/* Bugün için başlangıç değeri: bugün zaten kaydedildiyse o değeri, değilse günün hedefini gösterir */
+function initToday(){
+  const entry=S.history.find(h=>h.date===todayStr());
+  if(entry && entry.pages>0){
+    if(entry.bookPages) S.todaySessions={...entry.bookPages};
+    else if(entry.bookId) S.todaySessions={[entry.bookId]:entry.pages};
+    const ids=Object.keys(S.todaySessions||{});
+    if(ids.length && (!S.selectedBookId || !ids.includes(S.selectedBookId))) S.selectedBookId=ids[0];
+    const cur=(S.selectedBookId && S.todaySessions[S.selectedBookId]!==undefined)?S.todaySessions[S.selectedBookId]:entry.pages;
+    document.getElementById('pgslider').value=cur;
+    onSlider(cur);
   } else {
-    btn.classList.remove('sel');
-    sel=null;
-    saveBtn.disabled=true;
-    document.getElementById('pgslider').disabled=false;
-    sw.style.opacity='1';
-    onSlider(document.getElementById('pgslider').value);
+    const def=(S.books&&S.books.length&&S.selectedBookId&&S.todaySessions&&S.todaySessions[S.selectedBookId]!==undefined)
+      ? S.todaySessions[S.selectedBookId] : LEVELS[S.levelIndex].pages;
+    document.getElementById('pgslider').value=def;
+    onSlider(def);
   }
 }
 
-function quickSet(val){
-  document.getElementById('pgslider').value=val;
-  onSlider(val);
-}
-
-function updateQuickBtns(val){
-  const stage=getStage(val);
-  const color=STAGE_COLORS[stage].color;
-  document.querySelectorAll('#quick-btns button').forEach(b=>{
-    const active=parseInt(b.textContent)===val;
-    b.classList.toggle('active', active);
-    b.style.cssText = active ? `border-color:${color};color:${color}` : '';
-  });
+/* Hazır rozet: kaydırıcıyı doğrudan bugünkü hedefe atlatır */
+function snapToTarget(){
+  const target=LEVELS[S.levelIndex].pages;
+  document.getElementById('pgslider').value=target;
+  onSlider(target);
 }
 
 /* Kaydırıcı her hareket ettiğinde, o an seçili kitabın bugünkü sayfasını canlı günceller */
 function onSlider(val){
   val=parseInt(val);
-  if(noRead) return;
   const stage=getStage(val);
-  const {color,label}=STAGE_COLORS[stage];
+  const {color}=STAGE_COLORS[stage];
 
   // fill track gradient
   const pct=((val-1)/49)*100;
@@ -758,11 +732,6 @@ function onSlider(val){
   // value display
   document.getElementById('slider-val').textContent=val;
   document.getElementById('slider-val').style.color=color;
-  document.getElementById('slider-lbl-text').textContent=label;
-  document.getElementById('slider-sub').textContent=val+' sayfa';
-
-  updateQuickBtns(val);
-  document.getElementById('save-btn').disabled=false;
 
   // seçili kitap için o anki değeri yaz, toplamı yeniden hesapla
   if(S.books && S.books.length && S.selectedBookId){
@@ -814,45 +783,19 @@ function renderSessionsSummary(){
   }
 }
 
-let editingToday=false;
-
-function editToday(){
-  editingToday=true;
-  const entry=S.history.find(h=>h.date===todayStr());
-  if(entry){
-    if(entry.bookPages) S.todaySessions={...entry.bookPages};
-    else if(entry.bookId) S.todaySessions={[entry.bookId]:entry.pages};
-    else S.todaySessions={};
-    const ids=Object.keys(S.todaySessions);
-    if(ids.length && (!S.selectedBookId || !ids.includes(S.selectedBookId))) S.selectedBookId=ids[0];
-  }
-  renderMe();
-  if(entry){
-    if(entry.pages===0){
-      if(!noRead) toggleNoRead();
-    } else {
-      if(noRead) toggleNoRead();
-      const cur=(S.selectedBookId && S.todaySessions[S.selectedBookId]!==undefined)?S.todaySessions[S.selectedBookId]:entry.pages;
-      document.getElementById('pgslider').value=cur;
-      onSlider(cur);
-    }
-  }
-}
-
-function logToday(){
-  if(sel===null||(S.todayLogged&&!editingToday)) return;
-  // o an ekranda görünen kaydırıcı değerini son bir kez seçili kitaba yaz
-  if(!noRead && S.selectedBookId){
+/* Okudum/Okumadım'a dokunmak doğrudan kaydeder — ayrı bir Kaydet adımı yok.
+   Gün zaten kayıtlıysa da aynı buton günceller (serbestçe tekrar dokunulabilir). */
+function commitToday(isRead){
+  if(isRead && S.selectedBookId){
     S.todaySessions=S.todaySessions||{};
     S.todaySessions[S.selectedBookId]=parseInt(document.getElementById('pgslider').value)||0;
   }
+  if(!isRead) S.todaySessions={};
   const hasBooks=(S.books&&S.books.length);
-  const bookPagesMap = hasBooks && !noRead ? {...(S.todaySessions||{})} : null;
-  const total = noRead? 0 : computeTodayTotal();
+  const bookPagesMap = hasBooks && isRead ? {...(S.todaySessions||{})} : null;
+  const total = isRead ? computeTodayTotal() : 0;
 
   applyReading(todayStr(), total, bookPagesMap);
-  sel=null; noRead=false; editingToday=false;
-  document.getElementById('no-read-btn').classList.remove('sel');
   saveLocal(); syncToFb(); renderMe();
 }
 
@@ -1072,12 +1015,10 @@ function addBook(){
 }
 
 function selectReadingBook(id){
-  if(S.todayLogged && !editingToday) return; // bugün kaydedildiyse değiştirme
   S.selectedBookId=id;
   saveLocal(); syncToFb();
   renderBookPicker();
-  if(noRead) toggleNoRead(); // kitap seçince "okumadım" durumundan çık
-  const existing=(S.todaySessions&&S.todaySessions[id]!==undefined)?S.todaySessions[id]:1;
+  const existing=(S.todaySessions&&S.todaySessions[id]!==undefined)?S.todaySessions[id]:LEVELS[S.levelIndex].pages;
   document.getElementById('pgslider').value=existing;
   onSlider(existing);
 }
@@ -1176,11 +1117,14 @@ function renderBookPicker(){
   }
   list.innerHTML='';
   books.forEach(b=>{
-    const pill=document.createElement('div');
-    pill.className='book-pill'+(b.id===S.selectedBookId?' sel':'');
-    pill.onclick=()=>selectReadingBook(b.id);
-    pill.innerHTML=`${b.coverId?`<img class="book-pill-cover" src="${coverUrl(b.coverId,'S')}" alt="">`:'<div class="book-pill-cover ph">📖</div>'}<span class="book-pill-name">${b.name}</span>`;
-    list.appendChild(pill);
+    const sel=b.id===S.selectedBookId;
+    const item=document.createElement('div');
+    item.className='book-pick-item'+(sel?' sel':'');
+    item.onclick=()=>selectReadingBook(b.id);
+    const cover=b.coverId?`<img class="book-pick-cover" src="${coverUrl(b.coverId,'S')}" alt="">`:'<div class="book-pick-cover ph">📖</div>';
+    // seçili olmayan kapaklarda isim gösterilmez, dokununca seçili kapağın yanında belirir
+    item.innerHTML= sel ? `${cover}<span class="book-pick-name">${b.name}</span>` : cover;
+    list.appendChild(item);
   });
   renderSessionsSummary();
 }
@@ -1242,42 +1186,22 @@ function renderMe(){
   document.getElementById('s-streak').textContent=S.streak;
   document.getElementById('s-total').textContent=S.totalDays;
   document.getElementById('s-pages').textContent=lvl.pages;
+  document.getElementById('target-chip-text').textContent='Hedefin: '+lvl.pages+' sayfa';
 
-  const btn=document.getElementById('save-btn');
-  const tc=document.getElementById('tc-title');
-  const sw=document.getElementById('slider-wrap');
-  const ss=document.getElementById('sessions-summary');
-  const tl=document.getElementById('target-line');
-  const editBtn=document.getElementById('edit-today-btn');
-
-  if(S.todayLogged && !editingToday){
-    btn.textContent='Bugün kaydedildi ✓';btn.disabled=true;btn.className='save-btn done';
-    tc.textContent='Bugün tamamlandı ✓';
-    // Yarınki hedef = güncel seviyenin hedefi (recalc sonrası)
-    tl.innerHTML='Yarınki hedef: <b>'+lvl.pages+' sayfa</b> ('+lvl.label.split('—')[0].trim()+')';
-    sw.style.opacity='.4';
-    sw.style.pointerEvents='none';
-    ss.style.opacity='.4';
-    ss.style.pointerEvents='none';
-    document.getElementById('no-read-btn').style.display='none';
-    editBtn.style.display='';
-  } else {
-    sw.style.opacity=noRead?'.35':'1';
-    ss.style.opacity=noRead?'.35':'1';
-    ss.style.pointerEvents=noRead?'none':'';
-    btn.textContent=editingToday?'Güncelle':'Kaydet';
-    btn.disabled=(sel===null);btn.className='save-btn';
-    tc.textContent=editingToday?'Bugünü düzenle':'Bugün kaç sayfa okudun?';
-    // Bugünkü hedef + altında kalırsa ne olur
-    let uyari='';
-    if(S.levelIndex>0){
-      const onceki=LEVELS[S.levelIndex-1].label.split('—')[0].trim();
-      uyari=' · <span class="warn-part">Altında kalırsan '+onceki+' aşamasına dönersin</span>';
+  // Okudum/Okumadım'ı bugünün kayıtlı durumuna göre vurgula (ikisi de dokunulabilir kalır)
+  const btnOkudum=document.getElementById('btn-okudum');
+  const btnOkumadim=document.getElementById('btn-okumadim');
+  btnOkudum.classList.remove('on');
+  btnOkumadim.classList.remove('off-on');
+  const entry=S.history.find(h=>h.date===todayStr());
+  if(entry){
+    if(entry.pages>0){
+      btnOkudum.classList.add('on');
+    } else {
+      btnOkumadim.classList.add('off-on');
+      document.getElementById('slider-val').textContent='0';
+      document.getElementById('slider-val').style.color='var(--red)';
     }
-    tl.innerHTML='Bugünkü hedef: <b>'+lvl.pages+' sayfa</b>'+uyari;
-    sw.style.pointerEvents='';
-    document.getElementById('no-read-btn').style.display='';
-    editBtn.style.display='none';
   }
 
   renderBooks();
