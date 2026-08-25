@@ -4,8 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="color-scheme" content="light">
+<meta name="theme-color" content="#7D8A5C">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kitap Takip">
 <title>Kitap Takip</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -48,11 +56,29 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .spin{width:36px;height:36px;border:3px solid var(--bor);border-top-color:var(--grn);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 
+/* GİRİŞ / TANITIM EKRANLARI */
+.gate-screen{position:fixed;inset:0;background:var(--bg);z-index:150;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;text-align:center}
+.gate-screen.on{display:flex}
+.gate-logo{width:96px;height:96px;border-radius:26px;margin-bottom:22px;box-shadow:0 10px 26px rgba(74,63,46,.24)}
+.gate-title{font-size:22px;font-weight:700;color:var(--txt);margin-bottom:8px}
+.gate-sub{font-size:13.5px;color:var(--mut);line-height:1.6;margin-bottom:34px;max-width:280px}
+.gate-btn{width:100%;max-width:280px;padding:15px;background:var(--grn);color:#FFFAF0;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer}
+.ob-icon{font-size:52px;margin-bottom:20px;line-height:1}
+.ob-title{font-size:19px;font-weight:700;color:var(--txt);margin-bottom:10px}
+.ob-text{font-size:13.5px;color:var(--mut);line-height:1.7;max-width:280px;margin-bottom:8px}
+.ob-dots{display:flex;gap:7px;justify-content:center;margin:26px 0 22px}
+.ob-dot{width:7px;height:7px;border-radius:50%;background:var(--bor);transition:all .2s}
+.ob-dot.on{background:var(--grn);width:20px;border-radius:4px}
+.ob-btn-row{width:100%;max-width:280px;display:flex;gap:10px}
+.ob-skip{flex:0 0 auto;padding:15px 14px;background:transparent;border:none;color:var(--mut);font-size:13px;font-weight:600;cursor:pointer}
+.ob-next{flex:1;padding:15px;background:var(--grn);color:#FFFAF0;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer}
+
 /* HEADER + TABS (tek sabit blok) */
 .topbar{position:sticky;top:0;z-index:20;background:var(--bg)}
 .hdr{background:var(--bg);padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between}
 .hdr-date{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--grn)}
 .hdr-name{font-size:16px;font-weight:700;color:var(--txt)}
+.hdr-right{display:flex;align-items:center;gap:8px}
 .user-chip{display:flex;align-items:center;gap:9px;background:var(--sur);border:1px solid var(--bor);border-radius:100px;padding:5px 6px 5px 14px}
 .user-chip-name{font-size:13px;font-weight:600;color:var(--txt);letter-spacing:.01em}
 .user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--grn),var(--gold));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#FFFAF0}
@@ -339,6 +365,26 @@ input[type=range].pgslider::-moz-range-thumb{
 
 <div class="spin-wrap" id="spin"><div class="spin"></div></div>
 
+<!-- GİRİŞ EKRANI -->
+<div class="gate-screen on" id="login-screen">
+  <img class="gate-logo" src="apple-touch-icon.png" alt="">
+  <div class="gate-title">Kitap Takip</div>
+  <div class="gate-sub">Günlük sayfa hedefini tut, serini bozma, kitaplarını takip et.</div>
+  <button class="gate-btn" onclick="startLogin()">Giriş Yap</button>
+</div>
+
+<!-- TANITIM (İLK GİRİŞTE) -->
+<div class="gate-screen" id="onboarding-screen">
+  <div class="ob-icon" id="ob-icon"></div>
+  <div class="ob-title" id="ob-title"></div>
+  <div class="ob-text" id="ob-text"></div>
+  <div class="ob-dots" id="ob-dots"></div>
+  <div class="ob-btn-row">
+    <button class="ob-skip" onclick="obSkip()">Atla</button>
+    <button class="ob-next" id="ob-next-btn" onclick="obNext()">İleri</button>
+  </div>
+</div>
+
 <!-- EDIT MODAL -->
 <div class="modal-bg" id="edit-modal">
   <div class="modal">
@@ -371,13 +417,14 @@ input[type=range].pgslider::-moz-range-thumb{
 </div>
 
 <!-- APP -->
-<div id="app">
+<div id="app" style="display:none">
   <div class="topbar">
     <header class="hdr">
       <div class="hdr-left">
         <div class="hdr-date" id="hdr-date"></div>
       </div>
       <div class="hdr-right">
+        <button class="btn-sm" onclick="doLogout()">Çıkış</button>
         <div class="user-chip">
           <span class="user-chip-name" id="hdr-name"></span>
           <span class="user-avatar" id="hdr-avatar"></span>
@@ -632,7 +679,7 @@ async function doLogin(name){
   showApp();
 }
 
-function doLogout(){S=null;sel=null;location.reload();}
+function doLogout(){location.reload();}
 
 function showApp(){
   document.getElementById('hdr-date').textContent=dateLabel();
@@ -1445,11 +1492,65 @@ function saveEdit(){
 }
 
 /* ══════════════════════════════
+   GİRİŞ / TANITIM
+══════════════════════════════ */
+const ONBOARDED_KEY='kitap_onboarded_v1';
+const ONBOARDING=[
+  {icon:'📖', title:'Zincirini Kur', text:'Her gün en az hedef kadar sayfa oku, serini bozma. 1 sayfadan başlayıp 50 sayfaya kadar 8 aşamada ilerlersin.'},
+  {icon:'📚', title:'Kitaplarını Takip Et', text:'Aynı anda birden fazla kitap okuyabilir, her birinin ilerlemesini ayrı ayrı kaydedebilirsin.'},
+  {icon:'📅', title:'Geçmişini Gör', text:'Takvimden geçmiş günleri düzenle, seviyeni ve istatistiklerini Yolculuk sekmesinden takip et.'},
+];
+let obIndex=0;
+
+function startLogin(){
+  document.getElementById('login-screen').classList.remove('on');
+  if(localStorage.getItem(ONBOARDED_KEY)){
+    enterApp();
+  } else {
+    obIndex=0;
+    renderOnboardingSlide();
+    document.getElementById('onboarding-screen').classList.add('on');
+  }
+}
+
+function renderOnboardingSlide(){
+  const s=ONBOARDING[obIndex];
+  document.getElementById('ob-icon').textContent=s.icon;
+  document.getElementById('ob-title').textContent=s.title;
+  document.getElementById('ob-text').textContent=s.text;
+  const dots=document.getElementById('ob-dots');
+  dots.innerHTML='';
+  ONBOARDING.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='ob-dot'+(i===obIndex?' on':'');
+    dots.appendChild(d);
+  });
+  document.getElementById('ob-next-btn').textContent = obIndex===ONBOARDING.length-1 ? 'Başla' : 'İleri';
+}
+
+function obNext(){
+  if(obIndex<ONBOARDING.length-1){ obIndex++; renderOnboardingSlide(); }
+  else obFinish();
+}
+
+function obSkip(){ obFinish(); }
+
+function obFinish(){
+  localStorage.setItem(ONBOARDED_KEY,'1');
+  document.getElementById('onboarding-screen').classList.remove('on');
+  enterApp();
+}
+
+function enterApp(){
+  document.getElementById('app').style.display='';
+  doLogin(MEMBERS[0]);
+}
+
+/* ══════════════════════════════
    BOOT
 ══════════════════════════════ */
-window.addEventListener('load',()=>{
-  doLogin(MEMBERS[0]);
-});
+/* Giriş ekranı en baştan görünür durumda (bkz. #login-screen) — "Giriş Yap"a
+   basılınca startLogin() akışı devreye girer, sayfa açılışında otomatik giriş yok. */
 </script>
 </body>
 </html>
