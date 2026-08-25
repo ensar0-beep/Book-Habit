@@ -1121,7 +1121,7 @@ function renderBookPicker(){
     const item=document.createElement('div');
     item.className='book-pick-item'+(sel?' sel':'');
     item.onclick=()=>selectReadingBook(b.id);
-    const cover=b.coverId?`<img class="book-pick-cover" src="${coverUrl(b.coverId,'S')}" alt="">`:'<div class="book-pick-cover ph">📖</div>';
+    const cover=b.coverId?`<img class="book-pick-cover" src="${coverUrl(b.coverId,'M')}" alt="">`:'<div class="book-pick-cover ph">📖</div>';
     // seçili olmayan kapaklarda isim gösterilmez, dokununca seçili kapağın yanında belirir
     item.innerHTML= sel ? `${cover}<span class="book-pick-name">${b.name}</span>` : cover;
     list.appendChild(item);
