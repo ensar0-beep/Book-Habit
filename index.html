@@ -61,7 +61,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .gate-screen.on{display:flex}
 .gate-logo{width:96px;height:96px;border-radius:26px;margin-bottom:22px;box-shadow:0 10px 26px rgba(74,63,46,.24)}
 .gate-title{font-size:22px;font-weight:700;color:var(--txt);margin-bottom:8px}
-.gate-sub{font-size:13.5px;color:var(--mut);line-height:1.6;margin-bottom:34px;max-width:280px}
+.gate-sub{font-size:13.5px;color:var(--mut);line-height:1.6;margin-bottom:26px;max-width:280px}
+.gate-input{width:100%;max-width:280px;background:var(--sur2);border:1.5px solid var(--bor);border-radius:9px;padding:13px;color:var(--txt);font-size:16px;font-family:inherit;text-align:center;outline:none;margin-bottom:12px;transition:border-color .15s}
+.gate-input:focus{border-color:var(--grn)}
 .gate-btn{width:100%;max-width:280px;padding:15px;background:var(--grn);color:#FFFAF0;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer}
 .ob-icon{font-size:52px;margin-bottom:20px;line-height:1}
 .ob-title{font-size:19px;font-weight:700;color:var(--txt);margin-bottom:10px}
@@ -370,6 +372,7 @@ input[type=range].pgslider::-moz-range-thumb{
   <img class="gate-logo" src="apple-touch-icon.png" alt="">
   <div class="gate-title">Kitap Takip</div>
   <div class="gate-sub">Günlük sayfa hedefini tut, serini bozma, kitaplarını takip et.</div>
+  <input type="text" class="gate-input" id="login-name" placeholder="Adın" maxlength="20" autocomplete="off" onkeydown="if(event.key==='Enter')startLogin()">
   <button class="gate-btn" onclick="startLogin()">Giriş Yap</button>
 </div>
 
@@ -564,7 +567,7 @@ input[type=range].pgslider::-moz-range-thumb{
 ══════════════════════════════ */
 const FB_URL   = 'https://kitap-takip-ed4b2-default-rtdb.firebaseio.com';
 const LOCAL_KEY = 'kitap_v1';
-const MEMBERS  = ['Ensar'];
+const CURRENT_USER_KEY = 'kitap_current_user';
 const PAGE_OPTS = [0,1,2,3,5,10,15,20];
 const DAYS_TR  = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
 const MONTHS_TR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
@@ -679,7 +682,7 @@ async function doLogin(name){
   showApp();
 }
 
-function doLogout(){location.reload();}
+function doLogout(){localStorage.removeItem(CURRENT_USER_KEY);location.reload();}
 
 function showApp(){
   document.getElementById('hdr-date').textContent=dateLabel();
@@ -1494,18 +1497,30 @@ function saveEdit(){
 /* ══════════════════════════════
    GİRİŞ / TANITIM
 ══════════════════════════════ */
-const ONBOARDED_KEY='kitap_onboarded_v1';
+const ONBOARDED_PREFIX='kitap_onboarded_';
 const ONBOARDING=[
   {icon:'📖', title:'Zincirini Kur', text:'Her gün en az hedef kadar sayfa oku, serini bozma. 1 sayfadan başlayıp 50 sayfaya kadar 8 aşamada ilerlersin.'},
   {icon:'📚', title:'Kitaplarını Takip Et', text:'Aynı anda birden fazla kitap okuyabilir, her birinin ilerlemesini ayrı ayrı kaydedebilirsin.'},
   {icon:'📅', title:'Geçmişini Gör', text:'Takvimden geçmiş günleri düzenle, seviyeni ve istatistiklerini Yolculuk sekmesinden takip et.'},
 ];
 let obIndex=0;
+let pendingName=null;
 
+/* "Giriş Yap": yazılan isimle devam eder — o isim daha önce hiç girilmediyse
+   yeni bir kullanıcı olarak sıfırdan başlar (bkz. doLogin/freshState). */
 function startLogin(){
+  const nameInput=document.getElementById('login-name');
+  const name=(nameInput.value||'').trim();
+  if(!name){
+    nameInput.style.borderColor='var(--red)';
+    nameInput.focus();
+    return;
+  }
+  nameInput.style.borderColor='';
+  pendingName=name;
   document.getElementById('login-screen').classList.remove('on');
-  if(localStorage.getItem(ONBOARDED_KEY)){
-    enterApp();
+  if(localStorage.getItem(ONBOARDED_PREFIX+safeKey(name))){
+    finishLogin(name);
   } else {
     obIndex=0;
     renderOnboardingSlide();
@@ -1536,21 +1551,37 @@ function obNext(){
 function obSkip(){ obFinish(); }
 
 function obFinish(){
-  localStorage.setItem(ONBOARDED_KEY,'1');
+  localStorage.setItem(ONBOARDED_PREFIX+safeKey(pendingName),'1');
   document.getElementById('onboarding-screen').classList.remove('on');
-  enterApp();
+  finishLogin(pendingName);
 }
 
-function enterApp(){
+/* Oturumu kalıcı yapar: bir sonraki açılışta giriş ekranı tekrar sorulmaz — bkz. BOOT */
+function finishLogin(name){
+  localStorage.setItem(CURRENT_USER_KEY,name);
+  enterApp(name);
+}
+
+function enterApp(name){
   document.getElementById('app').style.display='';
-  doLogin(MEMBERS[0]);
+  doLogin(name);
 }
 
 /* ══════════════════════════════
    BOOT
 ══════════════════════════════ */
-/* Giriş ekranı en baştan görünür durumda (bkz. #login-screen) — "Giriş Yap"a
-   basılınca startLogin() akışı devreye girer, sayfa açılışında otomatik giriş yok. */
+window.addEventListener('load',()=>{
+  const savedUser=localStorage.getItem(CURRENT_USER_KEY);
+  if(savedUser){
+    // Zaten oturum açık: giriş ekranını hiç göstermeden devam et
+    document.getElementById('login-screen').classList.remove('on');
+    enterApp(savedUser);
+  } else {
+    // Kolaylık olsun diye bu cihazda en son kullanılan ismi öneri olarak koy
+    const last=loadLocal();
+    if(last && last.name) document.getElementById('login-name').value=last.name;
+  }
+});
 </script>
 </body>
 </html>
