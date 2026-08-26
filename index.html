@@ -77,14 +77,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 /* HEADER + TABS (tek sabit blok) */
 .topbar{position:sticky;top:0;z-index:20;background:var(--bg)}
-.hdr{background:var(--bg);padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between}
-.hdr-date{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--grn)}
-.hdr-name{font-size:16px;font-weight:700;color:var(--txt)}
-.hdr-right{display:flex;align-items:center;gap:8px}
-.user-chip{display:flex;align-items:center;gap:9px;background:var(--sur);border:1px solid var(--bor);border-radius:100px;padding:5px 6px 5px 14px}
-.user-chip-name{font-size:13px;font-weight:600;color:var(--txt);letter-spacing:.01em}
-.user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--grn),var(--gold));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#FFFAF0}
+.hdr{background:var(--bg);padding:14px 18px 6px;display:flex;align-items:center;justify-content:flex-end}
+.user-avatar-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--grn),var(--gold));border:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#FFFAF0;cursor:pointer;flex-shrink:0}
 .btn-sm{background:none;border:1px solid var(--bor);border-radius:8px;padding:6px 12px;font-size:11px;color:var(--mut);cursor:pointer}
+.profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--grn),var(--gold));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#FFFAF0;margin:4px auto 12px}
+.profile-name{font-size:16px;font-weight:700;color:var(--txt);text-align:center;margin-bottom:22px}
+.profile-logout-btn{width:100%;padding:14px;background:var(--red-dim);color:var(--red);border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px}
 
 /* TABS */
 .tabs{background:var(--bg);padding:10px 18px 14px;display:flex}
@@ -169,10 +167,6 @@ input[type=range].pgslider::-moz-range-thumb{
 .sess-name{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sess-pages{flex-shrink:0;font-size:12.5px;font-weight:700;color:var(--grn)}
 .sess-total{text-align:center;font-size:14px;font-weight:700;color:var(--grn);margin-bottom:14px}
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.sbox{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rs);padding:13px 10px;text-align:center}
-.snum{font-size:22px;font-weight:700;color:var(--grn)}
-.slbl{font-size:9px;color:var(--mut);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
 
 /* KONUM CARD */
 .loc-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:18px;margin-bottom:14px}
@@ -388,6 +382,16 @@ input[type=range].pgslider::-moz-range-thumb{
   </div>
 </div>
 
+<!-- PROFİL PANELİ -->
+<div class="modal-bg" id="profile-modal">
+  <div class="modal">
+    <div class="profile-avatar" id="profile-avatar"></div>
+    <div class="profile-name" id="profile-name"></div>
+    <button class="profile-logout-btn" onclick="doLogout()">Çıkış Yap</button>
+    <button class="btn-cancel" style="width:100%" onclick="closeProfile()">Kapat</button>
+  </div>
+</div>
+
 <!-- EDIT MODAL -->
 <div class="modal-bg" id="edit-modal">
   <div class="modal">
@@ -423,16 +427,7 @@ input[type=range].pgslider::-moz-range-thumb{
 <div id="app" style="display:none">
   <div class="topbar">
     <header class="hdr">
-      <div class="hdr-left">
-        <div class="hdr-date" id="hdr-date"></div>
-      </div>
-      <div class="hdr-right">
-        <button class="btn-sm" onclick="doLogout()">Çıkış</button>
-        <div class="user-chip">
-          <span class="user-chip-name" id="hdr-name"></span>
-          <span class="user-avatar" id="hdr-avatar"></span>
-        </div>
-      </div>
+      <button class="user-avatar-btn" id="hdr-avatar-btn" onclick="openProfile()"></button>
     </header>
     <div class="tabs">
       <div class="tabs-inner">
@@ -501,13 +496,6 @@ input[type=range].pgslider::-moz-range-thumb{
         </div>
         <button class="loc-save-btn add-full" onclick="addBook()">Kitabı Ekle</button>
       </div>
-    </div>
-
-    <!-- İstatistik -->
-    <div class="stats-row">
-      <div class="sbox"><div class="snum" id="s-streak">0</div><div class="slbl">Seri</div></div>
-      <div class="sbox"><div class="snum" id="s-total">0</div><div class="slbl">Toplam gün</div></div>
-      <div class="sbox"><div class="snum" id="s-pages">1</div><div class="slbl">Sayfa/gün</div></div>
     </div>
 
     <!-- Bitirilen kitaplar -->
@@ -596,11 +584,6 @@ function formatDate(ds){
   const d=new Date(ds+'T00:00:00');
   return DAYS_LONG[d.getDay()]+', '+d.getDate()+' '+MONTHS_TR[d.getMonth()];
 }
-function dateLabel(){
-  const d=new Date();
-  const gun=['PAZAR','PAZARTESİ','SALI','ÇARŞAMBA','PERŞEMBE','CUMA','CUMARTESİ'];
-  return gun[d.getDay()]+', '+d.getDate()+' '+MONTHS_TR[d.getMonth()].toUpperCase();
-}
 
 /* ══════════════════════════════
    FİREBASE
@@ -684,10 +667,18 @@ async function doLogin(name){
 
 function doLogout(){localStorage.removeItem(CURRENT_USER_KEY);location.reload();}
 
+/* Üst köşedeki küçük avatara dokununca açılan profil paneli (isim + çıkış) */
+function openProfile(){
+  document.getElementById('profile-avatar').textContent=S.name.slice(0,1).toUpperCase();
+  document.getElementById('profile-name').textContent=S.name;
+  document.getElementById('profile-modal').classList.add('on');
+}
+function closeProfile(){
+  document.getElementById('profile-modal').classList.remove('on');
+}
+
 function showApp(){
-  document.getElementById('hdr-date').textContent=dateLabel();
-  document.getElementById('hdr-name').textContent=S.name;
-  document.getElementById('hdr-avatar').textContent=S.name.slice(0,1).toUpperCase();
+  document.getElementById('hdr-avatar-btn').textContent=S.name.slice(0,1).toUpperCase();
   buildSlider();
   renderMe();
 }
@@ -1237,9 +1228,6 @@ function renderFinishedBooks(){
 ══════════════════════════════ */
 function renderMe(){
   const lvl=LEVELS[S.levelIndex];
-  document.getElementById('s-streak').textContent=S.streak;
-  document.getElementById('s-total').textContent=S.totalDays;
-  document.getElementById('s-pages').textContent=lvl.pages;
   document.getElementById('target-chip-text').textContent='Hedefin: '+lvl.pages+' sayfa';
 
   // Okudum/Okumadım'ı bugünün kayıtlı durumuna göre vurgula (ikisi de dokunulabilir kalır)
