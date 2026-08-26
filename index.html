@@ -69,8 +69,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .feat-icon{width:42px;height:42px;border-radius:50%;background:var(--grn-dim);color:var(--grn);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .feat-icon svg{width:20px;height:20px}
 .feat-label{font-size:10.5px;font-weight:600;color:var(--mut);text-align:center;line-height:1.35}
+.gate-mode-toggle{display:flex;background:var(--sur2);border-radius:100px;padding:4px;gap:2px;width:100%;max-width:280px;margin-bottom:16px}
+.gate-mode-btn{flex:1;padding:9px 8px;border:none;border-radius:100px;font-size:12.5px;font-weight:600;background:transparent;color:var(--mut);cursor:pointer;transition:all .15s}
+.gate-mode-btn.on{background:var(--grn);color:#FFFAF0;font-weight:700;box-shadow:0 2px 6px rgba(125,138,92,.3)}
 .gate-input{width:100%;max-width:280px;background:var(--sur2);border:1.5px solid var(--bor);border-radius:9px;padding:13px;color:var(--txt);font-size:16px;font-family:inherit;text-align:center;outline:none;margin-bottom:12px;transition:border-color .15s}
 .gate-input:focus{border-color:var(--grn)}
+.gate-error{width:100%;max-width:280px;font-size:12px;color:var(--red);margin:-4px 0 10px;text-align:center;line-height:1.4}
 .gate-btn{width:100%;max-width:280px;padding:15px;background:var(--grn);color:#FFFAF0;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer}
 .ob-icon-badge{width:78px;height:78px;border-radius:50%;background:var(--grn-dim);color:var(--grn);display:flex;align-items:center;justify-content:center;margin-bottom:22px}
 .ob-icon-badge svg{width:36px;height:36px}
@@ -384,8 +388,14 @@ input[type=range].pgslider::-moz-range-thumb{
     </div>
   </div>
 
-  <input type="text" class="gate-input" id="login-name" placeholder="Adın" maxlength="20" autocomplete="off" onkeydown="if(event.key==='Enter')startLogin()">
-  <button class="gate-btn" onclick="startLogin()">Giriş Yap</button>
+  <div class="gate-mode-toggle">
+    <button class="gate-mode-btn on" id="mode-login-btn" onclick="setLoginMode('login')">Giriş Yap</button>
+    <button class="gate-mode-btn" id="mode-new-btn" onclick="setLoginMode('new')">Yeni Kullanıcı</button>
+  </div>
+  <input type="text" class="gate-input" id="login-name" placeholder="Adın" maxlength="20" autocomplete="off">
+  <input type="password" class="gate-input" id="login-pw" placeholder="Şifre" maxlength="40" autocomplete="off" onkeydown="if(event.key==='Enter')startLogin()">
+  <div class="gate-error" id="login-error" style="display:none"></div>
+  <button class="gate-btn" id="login-submit-btn" onclick="startLogin()">Giriş Yap</button>
 </div>
 
 <!-- TANITIM (İLK GİRİŞTE) -->
@@ -664,6 +674,7 @@ async function doLogin(name){
   try{
     const remote=await fbGet('/book_members/'+safeKey(name));
     if(remote&&remote.name===name){
+      if(remote.passwordHash) S.passwordHash=remote.passwordHash;
       S.levelIndex=remote.levelIndex??S.levelIndex;
       S.streak=remote.streak??S.streak;
       S.totalDays=remote.totalDays??S.totalDays;
@@ -763,7 +774,7 @@ function showApp(){
 function syncToFb(){
   if(!S) return;
   fbSet('/book_members/'+safeKey(S.name),{
-    name:S.name,levelIndex:S.levelIndex,streak:S.streak,
+    name:S.name,passwordHash:S.passwordHash||null,levelIndex:S.levelIndex,streak:S.streak,
     totalDays:S.totalDays,todayLogged:S.todayLogged,todayDate:S.todayDate,
     books:S.books||[],selectedBookId:S.selectedBookId||null,todaySessions:S.todaySessions||{},
     finishedBooks:S.finishedBooks||[],
@@ -1561,18 +1572,95 @@ const ONBOARDING=[
 ];
 let obIndex=0;
 let pendingName=null;
+let pendingPasswordHash=null;
+let loginMode='login';
 
-/* "Giriş Yap": yazılan isimle devam eder — o isim daha önce hiç girilmediyse
-   yeni bir kullanıcı olarak sıfırdan başlar (bkz. doLogin/freshState). */
-function startLogin(){
+/* Şifreyi düz metin yerine SHA-256 özeti olarak saklarız. Not: veritabanı zaten
+   herkese açık/kimliksiz olduğundan bu GERÇEK bir güvenlik sağlamaz — sadece
+   rastgele birinin senin ismini yazıp direkt girmesini engelleyen basit bir kilit. */
+async function hashPassword(pw){
+  const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function setLoginMode(mode){
+  loginMode=mode;
+  document.getElementById('mode-login-btn').classList.toggle('on', mode==='login');
+  document.getElementById('mode-new-btn').classList.toggle('on', mode==='new');
+  document.getElementById('login-error').style.display='none';
   const nameInput=document.getElementById('login-name');
-  const name=(nameInput.value||'').trim();
-  if(!name){
-    nameInput.style.borderColor='var(--red)';
+  const pwInput=document.getElementById('login-pw');
+  pwInput.value='';
+  if(mode==='new'){
+    nameInput.value='';
+    nameInput.placeholder='Yeni adın';
+    pwInput.placeholder='Yeni şifre oluştur';
+    document.getElementById('login-submit-btn').textContent='Hesap Oluştur';
     nameInput.focus();
+  } else {
+    const last=loadLocal();
+    nameInput.value=(last&&last.name)?last.name:'';
+    nameInput.placeholder='Adın';
+    pwInput.placeholder='Şifre';
+    document.getElementById('login-submit-btn').textContent='Giriş Yap';
+  }
+}
+
+function loginError(msg){
+  const el=document.getElementById('login-error');
+  el.textContent=msg;
+  el.style.display='block';
+  document.getElementById('login-submit-btn').disabled=false;
+  spin(false);
+}
+
+/* "Giriş Yap" / "Hesap Oluştur": isim + şifreyle devam eder.
+   Yeni kullanıcı modunda isim zaten kullanılıyorsa engellenir; giriş modunda
+   şifre daha önce hiç ayarlanmadıysa yazılan şifre o an kaydedilir (eski
+   kullanıcıları geriye dönük "şifreye bağlama"). */
+async function startLogin(){
+  const nameInput=document.getElementById('login-name');
+  const pwInput=document.getElementById('login-pw');
+  const name=(nameInput.value||'').trim();
+  const pw=pwInput.value||'';
+  document.getElementById('login-error').style.display='none';
+
+  if(!name){ nameInput.style.borderColor='var(--red)'; nameInput.focus(); return; }
+  nameInput.style.borderColor='';
+  if(!pw){ pwInput.style.borderColor='var(--red)'; pwInput.focus(); return; }
+  pwInput.style.borderColor='';
+
+  document.getElementById('login-submit-btn').disabled=true;
+  spin(true);
+
+  try{
+    let remote=null;
+    try{ remote=await fbGet('/book_members/'+safeKey(name)); }catch(e){ remote=null; }
+    const hash=await hashPassword(pw);
+
+    if(loginMode==='new'){
+      if(remote && remote.name===name){
+        loginError('Bu isim zaten kullanılıyor. "Giriş Yap"ı dene.');
+        return;
+      }
+      pendingPasswordHash=hash;
+    } else {
+      if(remote && remote.passwordHash){
+        if(remote.passwordHash!==hash){
+          loginError('Şifre yanlış.');
+          return;
+        }
+        pendingPasswordHash=remote.passwordHash;
+      } else {
+        pendingPasswordHash=hash; // şifresi olmayan eski kayıt: şimdi bu şifreye bağlanır
+      }
+    }
+  }catch(e){
+    loginError('Bir şeyler ters gitti, tekrar dener misin?');
     return;
   }
-  nameInput.style.borderColor='';
+
+  spin(false);
   pendingName=name;
   document.getElementById('login-screen').classList.remove('on');
   if(localStorage.getItem(ONBOARDED_PREFIX+safeKey(name))){
@@ -1618,9 +1706,11 @@ function finishLogin(name){
   enterApp(name);
 }
 
-function enterApp(name){
+async function enterApp(name){
   document.getElementById('app').style.display='';
-  doLogin(name);
+  await doLogin(name);
+  if(pendingPasswordHash){ S.passwordHash=pendingPasswordHash; saveLocal(); syncToFb(); }
+  pendingPasswordHash=null;
 }
 
 /* ══════════════════════════════
@@ -1633,9 +1723,10 @@ window.addEventListener('load',()=>{
     document.getElementById('login-screen').classList.remove('on');
     enterApp(savedUser);
   } else {
-    // Kolaylık olsun diye bu cihazda en son kullanılan ismi öneri olarak koy
+    // Bu cihazda daha önce kullanılmış bir isim varsa Giriş Yap moduyla aç,
+    // yoksa doğrudan Yeni Kullanıcı moduyla karşıla
     const last=loadLocal();
-    if(last && last.name) document.getElementById('login-name').value=last.name;
+    setLoginMode((last&&last.name)?'login':'new');
   }
 });
 </script>
