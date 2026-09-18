@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="color-scheme" content="light">
 <meta name="theme-color" content="#7D8A5C">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -24,9 +23,16 @@
   --gold:#C97F4A; --red:#C4593F; --red-dim:#F5DCCF;
   --r:14px; --rs:10px;
 }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:#1C1815; --sur:#252019; --sur2:#2E2820; --bor:#3D362A;
+  --grn:#93A472; --grn-dim:#2C3323; --grn-txt:#A8BA8A;
+  --txt:#F2ECE0; --mut:#A69C89; --mut2:#726A58;
+  --gold:#D99361; --red:#E07A63; --red-dim:#3D2620;
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;min-width:0;touch-action:manipulation}
-html{height:100%;overflow-x:hidden;background:#FFEED6}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;padding-bottom:max(env(safe-area-inset-bottom),24px);overflow-x:hidden;width:100%}
+html{height:100%;overflow-x:hidden;background:var(--bg)}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;padding-bottom:max(env(safe-area-inset-bottom),24px);overflow-x:hidden;width:100%;transition:background .2s,color .2s}
 #app{background:var(--bg);min-height:100dvh}
 
 .quick-btns{display:flex;gap:8px;margin-bottom:12px}
@@ -87,23 +93,45 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .ob-skip{flex:0 0 auto;padding:15px 14px;background:transparent;border:none;color:var(--mut);font-size:13px;font-weight:600;cursor:pointer}
 .ob-next{flex:1;padding:15px;background:var(--grn);color:#FFFAF0;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer}
 
-/* HEADER + TABS (tek sabit blok) */
-.topbar{position:sticky;top:0;z-index:20;background:var(--bg)}
-.hdr{background:var(--bg);padding:14px 18px 6px;display:flex;align-items:center;justify-content:flex-end}
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:20;background:var(--bg);padding:14px 18px 6px;display:flex;align-items:center;justify-content:flex-end}
 .user-avatar-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--grn),var(--gold));border:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#FFFAF0;cursor:pointer;flex-shrink:0}
 .btn-sm{background:none;border:1px solid var(--bor);border-radius:8px;padding:6px 12px;font-size:11px;color:var(--mut);cursor:pointer}
 .profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--grn),var(--gold));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#FFFAF0;margin:4px auto 12px}
 .profile-name{font-size:16px;font-weight:700;color:var(--txt);text-align:center;margin-bottom:22px}
+.pm-row{display:flex;align-items:center;justify-content:space-between;padding:10px 2px;border-top:1px solid var(--bor);border-bottom:1px solid var(--bor);margin-bottom:16px;font-size:13px;font-weight:600;color:var(--txt)}
+.pm-theme-switch{display:flex;background:var(--sur2);border-radius:100px;padding:3px;gap:2px}
+.pm-theme-btn{padding:6px 12px;background:none;border:none;border-radius:100px;font-size:11px;font-weight:600;color:var(--mut);cursor:pointer;font-family:inherit}
+.pm-theme-btn.on{background:var(--grn);color:var(--sur)}
 .profile-logout-btn{width:100%;padding:14px;background:var(--red-dim);color:var(--red);border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px}
 
-/* TABS */
-.tabs{background:var(--bg);padding:10px 18px 14px;display:flex}
-.tabs-inner{display:flex;background:var(--sur2);border-radius:100px;padding:4px;gap:2px;width:100%}
-.tb{flex:1;padding:10px 8px;background:none;border:none;border-radius:100px;font-size:13px;font-weight:600;color:var(--mut);cursor:pointer;transition:all .2s}
-.tb.on{color:#FFFAF0;background:var(--grn);box-shadow:0 2px 6px rgba(125,138,92,.35)}
+/* SEKME RAYI (yatay kayan track — panolar hep DOM'da, transform ile kayar) */
+.panes-viewport{overflow:hidden;overflow:clip}
+.panes-track{display:flex;width:100%;will-change:transform;transition:transform .34s cubic-bezier(.22,.8,.3,1)}
+.panes-track.dragging{transition:none}
+.pane{flex:0 0 100%;min-width:0;padding:16px max(18px,calc((100% - 520px)/2 + 18px)) 110px}
+.pane:not(.on){position:sticky;top:0;max-height:100dvh;overflow:hidden}
 
-.pane{display:none;padding:16px 18px;max-width:520px;margin:0 auto}
-.pane.on{display:block}
+/* ALT NAVİGASYON — yüzen cam kapsül, sürükleyince kabarcık parmağı takip eder */
+.bottom-nav{position:fixed;left:14px;right:14px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;
+  display:flex;align-items:stretch;padding:6px;border-radius:100px;max-width:520px;margin:0 auto;
+  background:rgba(255,250,240,.74);-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid rgba(74,63,46,.08);box-shadow:0 16px 32px -12px rgba(74,63,46,.3),inset 0 1px 0 rgba(255,255,255,.55);
+  -webkit-user-select:none;user-select:none;touch-action:none}
+:root[data-theme="dark"] .bottom-nav{background:rgba(37,32,25,.72);border-color:rgba(255,255,255,.08);box-shadow:0 16px 32px -12px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05)}
+.bn-glass{position:absolute;top:6px;bottom:6px;left:0;width:60px;border-radius:100px;pointer-events:none;z-index:1;
+  background:var(--grn);box-shadow:0 4px 12px rgba(125,138,92,.4);transform-origin:center;
+  transition:transform .4s cubic-bezier(.34,1.4,.45,1),width .4s cubic-bezier(.34,1.4,.45,1),background .2s}
+.bn-glass.no-anim{transition:none}
+.bn-glass.lens{box-shadow:0 8px 18px -4px rgba(74,63,46,.4)}
+.bn-item{flex:1;position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 2px;min-height:48px;background:none;border:none;border-radius:100px;color:var(--mut);cursor:pointer;font-family:inherit;transition:color .15s}
+.bn-item .bn-icon,.bn-item .bn-label{transition:transform .22s cubic-bezier(.34,1.3,.45,1)}
+.bottom-nav.dragging .bn-item .bn-icon,.bottom-nav.dragging .bn-item .bn-label{transition:transform .06s linear}
+.bn-item.on{color:#FFFAF0}
+.bn-item.on .bn-icon,.bn-item.on .bn-label{transform:scale(1.06)}
+.bn-icon{width:21px;height:21px;flex-shrink:0}
+.bn-icon svg{width:100%;height:100%;display:block}
+.bn-label{font-size:10.5px;font-weight:600}
 
 /* SAYFA BAŞLIĞI (Bugün / Yolculuk) */
 
@@ -285,6 +313,41 @@ input[type=range].pgslider::-moz-range-thumb{
 .lvi.locked .lvm{color:var(--mut2)}
 .lvi.done .lvm{color:var(--grn-txt);opacity:.75}
 
+/* İSTATİSTİK — Apple Sağlık tarzı */
+.stat-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.st-seg{display:flex;background:var(--sur2);border-radius:9px;padding:3px;gap:2px;margin-bottom:16px}
+.st-seg button{flex:1;padding:7px 4px;background:none;border:none;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--mut);cursor:pointer;font-family:inherit;transition:all .15s}
+.st-seg button.on{background:var(--sur);color:var(--txt);box-shadow:0 1px 3px rgba(74,63,46,.2)}
+.st-head{margin-bottom:10px;min-height:54px}
+.st-eyebrow{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.st-head.scrub .st-eyebrow{color:var(--grn)}
+.st-val{display:flex;align-items:baseline;gap:6px;margin-top:2px}
+.st-num{font-size:28px;font-weight:800;color:var(--txt);line-height:1.1;font-variant-numeric:tabular-nums}
+.st-unit{font-size:13px;font-weight:600;color:var(--mut)}
+.st-range{font-size:12px;color:var(--mut);margin-top:2px}
+.st-chart{position:relative;-webkit-user-select:none;user-select:none;touch-action:pan-y}
+.st-chart svg{display:block;width:100%;height:180px;overflow:visible}
+.st-empty{font-size:12px;color:var(--mut);text-align:center;padding:70px 0}
+.st-grid{stroke:var(--bor);stroke-width:1}
+.st-ylabel{font-size:10px;fill:var(--mut2);font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums}
+.st-xlabel{font-size:10px;fill:var(--mut2);font-family:'Inter',sans-serif;text-anchor:middle}
+.st-bar{fill:var(--grn);transition:opacity .12s}
+.st-bar.dim{opacity:.32}
+.st-bar.zero{fill:var(--sur2)}
+.st-avg{stroke:var(--gold);stroke-width:1.2;stroke-dasharray:3 3;opacity:.8}
+.st-scrub{stroke:var(--txt);stroke-width:1;opacity:.4}
+.st-callout{position:absolute;top:-6px;transform:translate(-50%,-100%);background:var(--sur2);border:1px solid var(--bor);border-radius:10px;padding:6px 10px;white-space:nowrap;pointer-events:none;box-shadow:0 8px 20px -8px rgba(74,63,46,.4);display:none;z-index:2}
+.st-callout.on{display:block}
+.st-callout .cv{font-size:15px;font-weight:800;color:var(--txt)}
+.st-callout .cv small{font-size:11px;font-weight:600;color:var(--mut);margin-left:3px}
+.st-callout .cd{font-size:10.5px;color:var(--mut);margin-top:1px}
+.st-hl{display:flex;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--bor)}
+.st-hl>div{flex:1;min-width:0}
+.st-hl .k{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+.st-hl .v{font-size:14px;font-weight:700;color:var(--txt);margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.st-hl .v b{color:var(--grn);font-weight:700}
+.st-hl .s{font-size:10.5px;color:var(--mut);margin-top:1px}
+
 /* HISTORY — 30 GÜN */
 .hist-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:14px;margin-bottom:14px}
 .sec-lbl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;margin-top:4px}
@@ -336,6 +399,22 @@ input[type=range].pgslider::-moz-range-thumb{
 .btn-save-modal:disabled{opacity:.3;cursor:not-allowed}
 
 /* GROUP TAB */
+.grup-intro{text-align:center;margin-bottom:22px;padding:8px}
+.grup-intro-title{font-size:18px;font-weight:700;color:var(--txt);margin-bottom:6px}
+.grup-intro-sub{font-size:13px;color:var(--mut);line-height:1.5}
+.grup-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.grup-card-title{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:10px}
+.grup-or{text-align:center;font-size:11px;color:var(--mut2);margin:-4px 0 14px;text-transform:uppercase;letter-spacing:.08em}
+.grup-code-input{font-size:18px;text-transform:uppercase;letter-spacing:.2em;text-align:center;font-weight:700}
+.grup-header-card{background:linear-gradient(135deg,var(--sur) 0%,var(--sur2) 100%);border:1px solid var(--bor);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.grup-header-name{font-size:18px;font-weight:700;color:var(--txt);margin-bottom:10px}
+.grup-code-row{display:flex;align-items:center;gap:10px}
+.grup-code-lbl{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+.grup-code-val{font-size:16px;font-weight:700;color:var(--grn);letter-spacing:.15em;flex:1}
+.grup-copy-btn{padding:6px 12px;background:var(--sur2);border:1px solid var(--bor);border-radius:8px;font-size:11px;font-weight:600;color:var(--mut);cursor:pointer}
+.grup-copy-btn:active{background:var(--bor)}
+.grup-leave-btn{width:100%;padding:13px;margin-top:8px;background:transparent;border:1px solid var(--red);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer}
+.grup-leave-btn:active{background:var(--red-dim)}
 .rr{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
 .rbtn{background:none;border:1px solid var(--bor);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--mut);cursor:pointer}
 .lr{font-size:11px;color:var(--mut)}
@@ -364,6 +443,7 @@ input[type=range].pgslider::-moz-range-thumb{
 </style>
 </head>
 <body>
+<script>try{var t=localStorage.getItem('kitap_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 
 <div class="spin-wrap" id="spin"><div class="spin"></div></div>
 
@@ -415,6 +495,13 @@ input[type=range].pgslider::-moz-range-thumb{
   <div class="modal">
     <div class="profile-avatar" id="profile-avatar"></div>
     <div class="profile-name" id="profile-name"></div>
+    <div class="pm-row">
+      <span>Görünüm</span>
+      <div class="pm-theme-switch">
+        <button class="pm-theme-btn on" id="theme-btn-light" onclick="setTheme('light')">Açık</button>
+        <button class="pm-theme-btn" id="theme-btn-dark" onclick="setTheme('dark')">Koyu</button>
+      </div>
+    </div>
     <button class="profile-logout-btn" onclick="doLogout()">Çıkış Yap</button>
     <button class="btn-cancel" style="width:100%" onclick="closeProfile()">Kapat</button>
   </div>
@@ -470,17 +557,12 @@ input[type=range].pgslider::-moz-range-thumb{
 
 <!-- APP -->
 <div id="app" style="display:none">
-  <div class="topbar">
-    <header class="hdr">
-      <button class="user-avatar-btn" id="hdr-avatar-btn" onclick="openProfile()"></button>
-    </header>
-    <div class="tabs">
-      <div class="tabs-inner">
-        <button class="tb on" id="tb-me" onclick="switchTab('me')">Bugün</button>
-        <button class="tb" id="tb-yol" onclick="switchTab('yol')">Yolculuk</button>
-      </div>
-    </div>
-  </div>
+  <header class="hdr">
+    <button class="user-avatar-btn" id="hdr-avatar-btn" onclick="openProfile()"></button>
+  </header>
+
+  <div class="panes-viewport" id="panes-viewport">
+  <div class="panes-track" id="panes-track">
 
   <!-- BUGÜN -->
   <div class="pane on" id="tab-me">
@@ -586,7 +668,88 @@ input[type=range].pgslider::-moz-range-thumb{
       <div class="cal-grid" id="cal-grid"></div>
       <div class="cal-month-finished" id="cal-month-finished" style="display:none"></div>
     </div>
+
+    <!-- İstatistik (Apple Sağlık tarzı) -->
+    <div class="sec-lbl">İstatistik</div>
+    <div class="stat-card">
+      <div class="st-seg" id="st-seg">
+        <button data-p="w" onclick="setStatPeriod('w')">H</button>
+        <button data-p="m" class="on" onclick="setStatPeriod('m')">A</button>
+        <button data-p="6m" onclick="setStatPeriod('6m')">6A</button>
+        <button data-p="y" onclick="setStatPeriod('y')">Y</button>
+      </div>
+      <div class="st-head" id="st-head">
+        <div class="st-eyebrow" id="st-eyebrow">Ortalama</div>
+        <div class="st-val"><span class="st-num" id="st-num">—</span><span class="st-unit" id="st-unit">sayfa/gün</span></div>
+        <div class="st-range" id="st-range"></div>
+      </div>
+      <div class="st-chart" id="st-chart">
+        <div class="st-callout" id="st-callout"><div class="cv" id="st-cv"></div><div class="cd" id="st-cd"></div></div>
+        <svg id="st-svg"></svg>
+      </div>
+      <div class="st-hl">
+        <div><div class="k">Hedef</div><div class="v" id="st-hl-rate">—</div><div class="s">tutturma</div></div>
+        <div><div class="k">Toplam</div><div class="v" id="st-hl-total">—</div></div>
+        <div><div class="k">En iyi gün</div><div class="v" id="st-hl-best">—</div><div class="s" id="st-hl-best-d"></div></div>
+      </div>
+    </div>
   </div>
+
+  <!-- GRUP -->
+  <div class="pane" id="tab-grup">
+    <div id="grup-empty-state">
+      <div class="grup-intro">
+        <div class="grup-intro-title">Arkadaşlarınla birlikte oku</div>
+        <div class="grup-intro-sub">Bir grup oluştur veya bir kodla katıl, herkesin ilerlemesini tek ekranda gör.</div>
+      </div>
+      <div class="grup-card">
+        <div class="grup-card-title">Yeni grup oluştur</div>
+        <input class="loc-input" id="grup-create-name" type="text" placeholder="Grup adı (örn: Aile Grubu)" maxlength="30">
+        <button class="loc-save-btn add-full" style="margin-top:10px" onclick="createGroup()">Grup Oluştur</button>
+      </div>
+      <div class="grup-or">veya</div>
+      <div class="grup-card">
+        <div class="grup-card-title">Bir kodla katıl</div>
+        <input class="loc-input grup-code-input" id="grup-join-code" type="text" placeholder="6 haneli kod" maxlength="6">
+        <button class="loc-save-btn add-full" style="margin-top:10px" onclick="joinGroup()">Gruba Katıl</button>
+      </div>
+      <div class="msg msg-warn" id="grup-msg"></div>
+    </div>
+
+    <div id="grup-active-state" style="display:none">
+      <div class="grup-header-card">
+        <div class="grup-header-name" id="grup-name-display"></div>
+        <div class="grup-code-row">
+          <span class="grup-code-lbl">Davet kodu</span>
+          <span class="grup-code-val" id="grup-code-display"></span>
+          <button class="grup-copy-btn" onclick="copyGroupCode()">Kopyala</button>
+        </div>
+      </div>
+      <div class="sec-lbl">Üyeler</div>
+      <div id="grup-members-list"></div>
+      <button class="grup-leave-btn" onclick="leaveGroup()">Gruptan Ayrıl</button>
+    </div>
+  </div>
+
+  </div><!-- /panes-track -->
+  </div><!-- /panes-viewport -->
+
+  <!-- ALT NAVİGASYON -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <span class="bn-glass no-anim" id="bn-glass"></span>
+    <button class="bn-item on" id="bn-me" onclick="switchTab('me')">
+      <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg></span>
+      <span class="bn-label">Bugün</span>
+    </button>
+    <button class="bn-item" id="bn-yol" onclick="switchTab('yol')">
+      <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/></svg></span>
+      <span class="bn-label">Yolculuk</span>
+    </button>
+    <button class="bn-item" id="bn-grup" onclick="switchTab('grup')">
+      <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M15.3 14.3c2.5.5 4.2 2.6 4.2 5.2"/></svg></span>
+      <span class="bn-label">Grup</span>
+    </button>
+  </nav>
 </div>
 
 <script>
@@ -642,7 +805,7 @@ let S=null, sel=null;
 
 function freshState(name){
   return {name,levelIndex:0,streak:0,totalDays:0,history:[],todayLogged:false,todayDate:null,
-    books:[],selectedBookId:null,todaySessions:{},finishedBooks:[]};
+    books:[],selectedBookId:null,todaySessions:{},finishedBooks:[],groupCode:null};
 }
 /* Eski tek-kitap veri modelini yeni books[] dizisine taşır (geriye dönük uyumluluk) */
 function migrateBooks(S){
@@ -686,6 +849,7 @@ async function doLogin(name){
       if(remote.selectedBookId!==undefined) S.selectedBookId=remote.selectedBookId;
       if(remote.todaySessions && remote.todayDate===todayStr()) S.todaySessions=remote.todaySessions;
       if(remote.finishedBooks) S.finishedBooks=remote.finishedBooks;
+      if(remote.groupCode!==undefined) S.groupCode=remote.groupCode;
       migrateBooks(S);
       if(!S.todayLogged&&remote.todayLogged&&remote.todayDate===todayStr()){
         S.todayLogged=true;S.todayDate=todayStr();
@@ -708,10 +872,29 @@ async function doLogin(name){
 
 function doLogout(){localStorage.removeItem(CURRENT_USER_KEY);location.reload();}
 
-/* Üst köşedeki küçük avatara dokununca açılan profil paneli (isim + çıkış) */
+/* ══════════════════════════════
+   TEMA (açık / koyu)
+══════════════════════════════ */
+const THEME_KEY='kitap_theme';
+function currentTheme(){ return document.documentElement.getAttribute('data-theme')||'light'; }
+function syncThemeButtons(){
+  const t=currentTheme();
+  const dEl=document.getElementById('theme-btn-dark'), lEl=document.getElementById('theme-btn-light');
+  if(dEl) dEl.classList.toggle('on', t==='dark');
+  if(lEl) lEl.classList.toggle('on', t==='light');
+}
+function setTheme(mode){
+  document.documentElement.setAttribute('data-theme', mode);
+  localStorage.setItem(THEME_KEY, mode);
+  syncThemeButtons();
+  if(S) renderMe(); // zincir/sürüklenen değer renkleri JS'de hesaplandığı için yeniden çizilmeli
+}
+
+/* Üst köşedeki küçük avatara dokununca açılan profil paneli (isim + tema + çıkış) */
 function openProfile(){
   document.getElementById('profile-avatar').textContent=S.name.slice(0,1).toUpperCase();
   document.getElementById('profile-name').textContent=S.name;
+  syncThemeButtons();
   document.getElementById('profile-modal').classList.add('on');
 }
 function closeProfile(){
@@ -777,21 +960,181 @@ function syncToFb(){
     name:S.name,passwordHash:S.passwordHash||null,levelIndex:S.levelIndex,streak:S.streak,
     totalDays:S.totalDays,todayLogged:S.todayLogged,todayDate:S.todayDate,
     books:S.books||[],selectedBookId:S.selectedBookId||null,todaySessions:S.todaySessions||{},
-    finishedBooks:S.finishedBooks||[],
+    finishedBooks:S.finishedBooks||[],groupCode:S.groupCode||null,
     updatedAt:Date.now(),
     history14:S.history.slice(-30),
   });
 }
 
 /* ══════════════════════════════
-   TABS
+   TABS — yatay ray + yüzen cam alt menü
 ══════════════════════════════ */
+const TAB_ORDER=['me','yol','grup'];
+let curTab='me';
+
+/* Sekme değişimi: alt nav hemen güncellenir, ray animasyonla kayar; pane
+   sınıfları geçiş bitince değişir (kırpılmış komşu pane'in sıçraması görünmesin diye). */
 function switchTab(id){
-  document.getElementById('tb-me').classList.toggle('on',id==='me');
-  document.getElementById('tb-yol').classList.toggle('on',id==='yol');
-  document.getElementById('tab-me').classList.toggle('on',id==='me');
-  document.getElementById('tab-yol').classList.toggle('on',id==='yol');
-  if(id==='yol'){ renderChain(); renderLevels(); renderCal(); }
+  const track=document.getElementById('panes-track');
+  const idx=TAB_ORDER.indexOf(id);
+  if(idx<0) return;
+
+  document.getElementById('bn-me').classList.toggle('on',id==='me');
+  document.getElementById('bn-yol').classList.toggle('on',id==='yol');
+  document.getElementById('bn-grup').classList.toggle('on',id==='grup');
+  positionGlass(false);
+
+  if(id==='yol'){ renderChain(); renderLevels(); renderCal(); renderStats(); }
+  if(id==='grup'){ loadGroupTab(); }
+
+  const finish=()=>{
+    TAB_ORDER.forEach(t=>document.getElementById('tab-'+t).classList.toggle('on', t===id));
+  };
+
+  const wasTab=curTab;
+  curTab=id;
+  track.classList.remove('dragging');
+  if(wasTab===id){
+    track.style.transform='translate3d('+(-idx*100)+'%,0,0)';
+    finish();
+    return;
+  }
+  let done=false;
+  const onEnd=e=>{ if(e.target!==track||done) return; done=true; track.removeEventListener('transitionend',onEnd); finish(); };
+  track.addEventListener('transitionend', onEnd);
+  setTimeout(()=>{ if(done) return; done=true; track.removeEventListener('transitionend',onEnd); if(curTab===id) finish(); }, 420);
+  requestAnimationFrame(()=>{ track.style.transform='translate3d('+(-idx*100)+'%,0,0)'; });
+}
+
+/* Kabarcığı aktif sekmenin arkasına yerleştirir */
+function navItems(){ return TAB_ORDER.map(t=>document.getElementById('bn-'+t)); }
+function positionGlass(instant){
+  const glass=document.getElementById('bn-glass');
+  const el=document.querySelector('.bn-item.on');
+  if(!glass||!el||!el.offsetWidth) return;
+  glass.classList.toggle('no-anim', !!instant);
+  glass.style.width=el.offsetWidth+'px';
+  glass.style.transform='translate3d('+el.offsetLeft+'px,0,0)';
+  if(instant){ void glass.offsetWidth; glass.classList.remove('no-anim'); }
+}
+
+/* Bara basılı tutup sürükleme: kabarcık büyüyüp parmağı izler, bırakınca en yakın sekmeye oturur */
+function initNavGlass(){
+  const nav=document.getElementById('bottom-nav');
+  const glass=document.getElementById('bn-glass');
+  let startX=0, moved=false, active=false;
+
+  const nearest=x=>{
+    let best=null, bd=Infinity;
+    navItems().forEach((el,i)=>{ const c=el.offsetLeft+el.offsetWidth/2; const d=Math.abs(c-x); if(d<bd){bd=d;best=i;} });
+    return best;
+  };
+  const magnify=(items,c)=>{
+    const w=items[0].offsetWidth;
+    items.forEach(el=>{
+      const d=Math.abs(el.offsetLeft+w/2-c);
+      const s=1+0.22*Math.max(0,1-d/(w*0.95));
+      const t=s>1.005?'scale('+s.toFixed(3)+')':'';
+      el.querySelector('.bn-icon').style.transform=t;
+      el.querySelector('.bn-label').style.transform=t;
+    });
+  };
+  const clearMagnify=()=>navItems().forEach(el=>{ el.querySelector('.bn-icon').style.transform=''; el.querySelector('.bn-label').style.transform=''; });
+
+  const follow=x=>{
+    const items=navItems();
+    const w=items[0].offsetWidth;
+    const minC=items[0].offsetLeft+w/2, maxC=items[items.length-1].offsetLeft+w/2;
+    const c=Math.max(minC,Math.min(maxC,x));
+    glass.style.width=w+'px';
+    glass.style.transform='translate3d('+(c-w/2)+'px,0,0) scale(1.12)';
+    magnify(items,c);
+  };
+  const relX=e=>e.touches[0].clientX-nav.getBoundingClientRect().left;
+
+  nav.addEventListener('touchstart', e=>{
+    if(e.touches.length!==1) return;
+    active=true; moved=false; startX=relX(e);
+    glass.classList.add('lens'); glass.classList.add('no-anim'); nav.classList.add('dragging');
+    follow(startX);
+  }, {passive:true});
+
+  nav.addEventListener('touchmove', e=>{
+    if(!active) return;
+    const x=relX(e);
+    if(Math.abs(x-startX)>6) moved=true;
+    e.preventDefault();
+    follow(x);
+  }, {passive:false});
+
+  const end=e=>{
+    if(!active) return; active=false;
+    glass.classList.remove('lens'); glass.classList.remove('no-anim'); nav.classList.remove('dragging');
+    clearMagnify();
+    if(moved){
+      if(e.cancelable) e.preventDefault();
+      const x=e.changedTouches[0].clientX-nav.getBoundingClientRect().left;
+      const id=TAB_ORDER[nearest(Math.max(0,Math.min(nav.clientWidth,x)))];
+      if(id===curTab) positionGlass(false); else switchTab(id);
+    } else {
+      positionGlass(false);
+    }
+  };
+  nav.addEventListener('touchend', end, {passive:false});
+  nav.addEventListener('touchcancel', end, {passive:false});
+  window.addEventListener('resize', ()=>positionGlass(true));
+}
+
+/* Sekmeler arası kaydırma (swipe) — ray parmağı takip eder */
+function initSwipe(){
+  const viewport=document.getElementById('panes-viewport');
+  const track=document.getElementById('panes-track');
+  let startX=0, startY=0, dx=0, lock=null, width=0, active=false;
+
+  viewport.addEventListener('touchstart', e=>{
+    if(e.touches.length!==1) return;
+    startX=e.touches[0].clientX; startY=e.touches[0].clientY;
+    dx=0; lock=null; active=true;
+    width=viewport.clientWidth;
+  }, {passive:true});
+
+  viewport.addEventListener('touchmove', e=>{
+    if(!active) return;
+    const x=e.touches[0].clientX, y=e.touches[0].clientY;
+    dx=x-startX; const dy=y-startY;
+
+    if(!lock){
+      if(Math.abs(dx)<8 && Math.abs(dy)<8) return;
+      lock = Math.abs(dx)>Math.abs(dy) ? 'h' : 'v';
+      if(lock==='h') track.classList.add('dragging');
+    }
+    if(lock!=='h') return;
+
+    if(e.cancelable) e.preventDefault();
+    const idx=TAB_ORDER.indexOf(curTab);
+    let move=dx;
+    if((idx===0 && dx>0) || (idx===TAB_ORDER.length-1 && dx<0)) move=dx*0.3;
+    track.style.transform='translate3d('+(-idx*width+move)+'px,0,0)';
+  }, {passive:false});
+
+  const end=()=>{
+    if(!active) return;
+    active=false;
+    if(lock!=='h'){ return; }
+    const idx=TAB_ORDER.indexOf(curTab);
+    const threshold=Math.min(80, width*0.22);
+    let target=curTab;
+    if(dx<-threshold && idx<TAB_ORDER.length-1) target=TAB_ORDER[idx+1];
+    else if(dx>threshold && idx>0) target=TAB_ORDER[idx-1];
+    track.classList.remove('dragging');
+    if(target===curTab){
+      requestAnimationFrame(()=>{ track.style.transform='translate3d('+(-idx*100)+'%,0,0)'; });
+    } else {
+      switchTab(target);
+    }
+  };
+  viewport.addEventListener('touchend', end, {passive:true});
+  viewport.addEventListener('touchcancel', end, {passive:true});
 }
 
 /* ══════════════════════════════
@@ -809,6 +1152,18 @@ const STAGE_COLORS = {
   40: {color:'#A66A3C', label:'Üst düzey'},
   50: {color:'#827148', label:'Zirve'},
 };
+// Koyu modda aynı etiketler, koyu zemin üzerinde okunaklı olacak açıklıkta renkler
+const STAGE_COLORS_DARK = {
+  1:  {color:'#C9D9A0', label:'Başlangıç'},
+  3:  {color:'#B7C98A', label:'Alışma'},
+  5:  {color:'#A6C078', label:'Gelişme'},
+  10: {color:'#93A472', label:'İlerleme'},
+  20: {color:'#E0996A', label:'Kararlılık'},
+  30: {color:'#D97F63', label:'Ustalık'},
+  40: {color:'#C08A5E', label:'Üst düzey'},
+  50: {color:'#A6906A', label:'Zirve'},
+};
+function stageColorsTable(){ return currentTheme()==='dark' ? STAGE_COLORS_DARK : STAGE_COLORS; }
 
 function getStage(val){
   let stage=1;
@@ -860,7 +1215,7 @@ function stepValue(delta){
 function onSlider(rawVal){
   const val = isNaN(parseInt(rawVal)) ? 0 : Math.max(0, parseInt(rawVal));
   const stage=getStage(val);
-  const {color}=STAGE_COLORS[stage];
+  const {color}=stageColorsTable()[stage];
   document.getElementById('pgslider').style.color=color;
 
   // seçili kitap için o anki değeri yaz, toplamı yeniden hesapla
@@ -1330,22 +1685,26 @@ function renderMe(){
   renderChain();
   renderLevels();
   renderCal();
+  renderStats();
 }
 
 /* ══════════════════════════════
    ZİNCİR GÖRSELİ
 ══════════════════════════════ */
 const CHAIN_COLORS=['#B7C08F','#A5AF79','#93A066','#7D8A5C','#C97F4A','#C4593F','#A66A3C','#827148'];
+const CHAIN_COLORS_DARK=['#C9D9A0','#B7C98A','#A6C078','#93A472','#E0996A','#D97F63','#C08A5E','#A6906A'];
 const CHAIN_NAMES=['1\'ler','3\'ler','5\'ler','10\'lar','20\'ler','30\'lar','40\'lar','50\'ler'];
+function chainColorsTable(){ return currentTheme()==='dark' ? CHAIN_COLORS_DARK : CHAIN_COLORS; }
 
 function renderChain(){
   const track=document.getElementById('chain-track');
   const labels=document.getElementById('chain-labels');
   track.innerHTML=''; labels.innerHTML='';
   const totalDays=LEVELS.reduce((a,l)=>a+l.days,0);
+  const chainColors=chainColorsTable();
 
   LEVELS.forEach((lvl,i)=>{
-    const color=CHAIN_COLORS[i];
+    const color=chainColors[i];
     const done=i<S.levelIndex;
     const act=i===S.levelIndex;
 
@@ -1395,6 +1754,159 @@ function renderLevels(){
     <div class="lvm"><span>${show}/${lvl.days} gün</span><span>${i<LEVELS.length-1?'Sonraki: '+LEVELS[i+1].label.split('—')[0].trim():'Son aşama'}</span></div>`;
     c.appendChild(d);
   });
+}
+
+/* ══════════════════════════════
+   İSTATİSTİK (Apple Sağlık tarzı çubuk grafik)
+══════════════════════════════ */
+const MONTHS_SHORT_TR=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+const DOW_1=['P','P','S','Ç','P','C','C'];
+let statPeriod='m', statSel=-1, statData=null;
+
+function fmtDay(ds){ const d=(ds instanceof Date)?ds:new Date(ds+'T00:00:00'); return d.getDate()+' '+MONTHS_SHORT_TR[d.getMonth()]; }
+
+/* Belirli bir aralıktaki her günü {date,pages,success} olarak döner. */
+function buildStatDays(rangeDays){
+  if(!S||!S.history.length) return [];
+  const todayDs=todayStr();
+  const sorted=[...S.history].sort((a,b)=>a.date.localeCompare(b.date));
+  const firstDs=sorted[0].date;
+  let startDs;
+  if(rangeDays){
+    const d=new Date(todayDs+'T00:00:00'); d.setDate(d.getDate()-(rangeDays-1));
+    startDs=localDS(d);
+    if(startDs<firstDs) startDs=firstDs;
+  } else startDs=firstDs;
+  const map={}; sorted.forEach(h=>map[h.date]=h);
+  const list=[];
+  let d=new Date(startDs+'T00:00:00');
+  const end=new Date(todayDs+'T00:00:00');
+  while(d<=end){
+    const ds=localDS(d);
+    if(ds===todayDs && !map[ds]){ d.setDate(d.getDate()+1); continue; }
+    const e=map[ds];
+    list.push({date:new Date(d), ds, pages:e?(e.pages||0):0, success:e?!!e.success:false});
+    d.setDate(d.getDate()+1);
+  }
+  return list;
+}
+
+function statDataFor(p){
+  if(p==='w'||p==='m'){
+    const days=buildStatDays(p==='w'?7:30);
+    return {days, perDay:true, bars:days.map(x=>({v:x.pages,date:x.date,ds:x.ds}))};
+  }
+  if(p==='6m'){
+    const days=buildStatDays(182); const bars=[];
+    for(let i=0;i<days.length;i+=7){ const c=days.slice(i,i+7); bars.push({v:+(c.reduce((a,x)=>a+x.pages,0)/c.length).toFixed(1),date:c[0].date,dateEnd:c[c.length-1].date}); }
+    return {days, perDay:false, bars};
+  }
+  const days=buildStatDays(365); const m={}, order=[];
+  days.forEach(x=>{ const k=x.date.getFullYear()+'-'+x.date.getMonth(); if(!m[k]){ m[k]={sum:0,n:0,date:new Date(x.date.getFullYear(),x.date.getMonth(),1)}; order.push(k);} m[k].sum+=x.pages; m[k].n++; });
+  return {days, perDay:false, bars:order.map(k=>({v:+(m[k].sum/m[k].n).toFixed(1),date:m[k].date,month:true}))};
+}
+
+function setStatPeriod(p){
+  statPeriod=p; statSel=-1;
+  document.querySelectorAll('#st-seg button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  renderStats();
+}
+
+function statLabelFor(b){
+  if(statData.perDay) return fmtDay(b.date)+' '+b.date.getFullYear();
+  if(b.month) return MONTHS_SHORT_TR[b.date.getMonth()]+' '+b.date.getFullYear();
+  return fmtDay(b.date)+' – '+fmtDay(b.dateEnd);
+}
+
+function renderStats(){
+  const svg=document.getElementById('st-svg'); if(!svg) return;
+  const head=document.getElementById('st-head'), callout=document.getElementById('st-callout');
+  statData=statDataFor(statPeriod);
+  const D=statData, n=D.bars.length;
+
+  if(!n){
+    svg.innerHTML='<foreignObject x="0" y="0" width="100%" height="180"><div xmlns="http://www.w3.org/1999/xhtml" class="st-empty">Henüz veri yok</div></foreignObject>';
+    document.getElementById('st-eyebrow').textContent='Ortalama';
+    document.getElementById('st-num').textContent='—'; document.getElementById('st-range').textContent='';
+    callout.classList.remove('on'); head.classList.remove('scrub');
+    ['st-hl-rate','st-hl-total','st-hl-best'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('st-hl-best-d').textContent='';
+    return;
+  }
+
+  const W=svg.clientWidth||318, H=180, padR=30, padB=22, padT=10;
+  const maxv=Math.max(...D.bars.map(b=>b.v),1);
+  const nice=maxv<=5?5:maxv<=10?10:maxv<=15?15:maxv<=20?20:Math.ceil(maxv/10)*10;
+  const innerW=W-padR, innerH=H-padB-padT;
+  const gap=n>20?2:n>10?4:8; const bw=(innerW-gap*(n-1))/n;
+  const y=v=>padT+innerH-(v/nice)*innerH;
+  let out='';
+  [0,nice/2,nice].forEach(g=>{ out+='<line class="st-grid" x1="0" x2="'+innerW+'" y1="'+y(g)+'" y2="'+y(g)+'"/><text class="st-ylabel" x="'+(innerW+8)+'" y="'+(y(g)+3.5)+'">'+g+'</text>'; });
+  D.bars.forEach((b,i)=>{ const x=i*(bw+gap); const h=Math.max(b.v>0?3:2,(b.v/nice)*innerH); const r=Math.min(bw/2,4);
+    out+='<rect class="st-bar'+(b.v===0?' zero':'')+(statSel>=0&&statSel!==i?' dim':'')+'" x="'+x+'" y="'+(y(0)-h)+'" width="'+bw+'" height="'+h+'" rx="'+r+'"/>'; });
+  const totalPages=D.days.reduce((a,x)=>a+x.pages,0);
+  const avg=D.days.length? totalPages/D.days.length : 0;
+  out+='<line class="st-avg" x1="0" x2="'+innerW+'" y1="'+y(Math.min(avg,nice))+'" y2="'+y(Math.min(avg,nice))+'"/>';
+  D.bars.forEach((b,i)=>{
+    let show=false, lab='';
+    if(statPeriod==='w'){ show=true; lab=DOW_1[b.date.getDay()]; }
+    else if(statPeriod==='m'){ show=(i%5===0||i===n-1); lab=String(b.date.getDate()); }
+    else if(statPeriod==='6m'){ show=(i===0||b.date.getMonth()!==D.bars[i-1].date.getMonth()); lab=MONTHS_SHORT_TR[b.date.getMonth()]; }
+    else { show=true; lab=MONTHS_SHORT_TR[b.date.getMonth()][0]; }
+    if(show) out+='<text class="st-xlabel" x="'+(i*(bw+gap)+bw/2)+'" y="'+(H-4)+'">'+lab+'</text>';
+  });
+  if(statSel>=0){ const x=statSel*(bw+gap)+bw/2; out+='<line class="st-scrub" x1="'+x+'" x2="'+x+'" y1="'+padT+'" y2="'+y(0)+'"/>'; }
+  svg.innerHTML=out;
+
+  const first=D.days[0].date, last=D.days[D.days.length-1].date;
+  if(statSel>=0){
+    const b=D.bars[statSel]; head.classList.add('scrub');
+    document.getElementById('st-eyebrow').textContent=D.perDay?'Seçili gün':'Seçili dönem · ortalama';
+    document.getElementById('st-num').textContent=String(b.v).replace('.',',');
+    document.getElementById('st-unit').textContent=D.perDay?'sayfa':'sayfa/gün';
+    document.getElementById('st-range').textContent=statLabelFor(b);
+    callout.classList.add('on'); callout.style.left=(statSel*(bw+gap)+bw/2)+'px';
+    document.getElementById('st-cv').innerHTML=String(b.v).replace('.',',')+'<small>'+(D.perDay?'sayfa':'sayfa/gün')+'</small>';
+    document.getElementById('st-cd').textContent=statLabelFor(b);
+  } else {
+    head.classList.remove('scrub'); callout.classList.remove('on');
+    document.getElementById('st-eyebrow').textContent='Ortalama';
+    document.getElementById('st-num').textContent=avg.toFixed(1).replace('.',',');
+    document.getElementById('st-unit').textContent='sayfa/gün';
+    document.getElementById('st-range').textContent= statPeriod==='y'
+      ? MONTHS_SHORT_TR[first.getMonth()]+' '+first.getFullYear()+' – '+MONTHS_SHORT_TR[last.getMonth()]+' '+last.getFullYear()
+      : fmtDay(first)+' – '+fmtDay(last)+' '+last.getFullYear();
+  }
+
+  const okr=Math.round(D.days.filter(x=>x.success).length/D.days.length*100);
+  const best=D.days.reduce((a,x)=>x.pages>a.pages?x:a,D.days[0]);
+  document.getElementById('st-hl-rate').innerHTML='<b>%'+okr+'</b>';
+  document.getElementById('st-hl-total').textContent=totalPages+' sayfa';
+  document.getElementById('st-hl-best').textContent=best.pages+' sayfa';
+  document.getElementById('st-hl-best-d').textContent=fmtDay(best.date);
+}
+
+/* Grafikte dokun/sürükle ile çubuk seçme (yatay hareket; dikeyde sayfa kaydırması korunur) */
+function initStatScrub(){
+  const chart=document.getElementById('st-chart'); if(!chart) return;
+  const pick=clientX=>{
+    if(!statData||!statData.bars.length) return;
+    const svg=document.getElementById('st-svg'); const r=svg.getBoundingClientRect();
+    const n=statData.bars.length, innerW=r.width-30, gap=n>20?2:n>10?4:8, bw=(innerW-gap*(n-1))/n;
+    let i=Math.round((clientX-r.left-bw/2)/(bw+gap)); i=Math.max(0,Math.min(n-1,i));
+    if(i!==statSel){ statSel=i; renderStats(); }
+  };
+  const clear=()=>{ if(statSel!==-1){ statSel=-1; renderStats(); } };
+  let sx=0, sy=0, lock=null;
+  chart.addEventListener('touchstart', e=>{ e.stopPropagation(); if(e.touches.length!==1) return; sx=e.touches[0].clientX; sy=e.touches[0].clientY; lock=null; pick(sx); }, {passive:true});
+  chart.addEventListener('touchmove', e=>{ e.stopPropagation(); const x=e.touches[0].clientX, y=e.touches[0].clientY;
+    if(!lock){ const dx=Math.abs(x-sx), dy=Math.abs(y-sy); if(dx<6&&dy<6) return; lock=dx>dy?'h':'v'; if(lock==='v'){ clear(); return; } }
+    if(lock!=='h') return; if(e.cancelable) e.preventDefault(); pick(x); }, {passive:false});
+  chart.addEventListener('touchend', e=>{ e.stopPropagation(); clear(); }, {passive:true});
+  chart.addEventListener('touchcancel', e=>{ e.stopPropagation(); clear(); }, {passive:true});
+  chart.addEventListener('mousemove', e=>pick(e.clientX));
+  chart.addEventListener('mouseleave', clear);
+  window.addEventListener('resize', ()=>{ if(S) renderStats(); });
 }
 
 /* ══════════════════════════════
@@ -1504,7 +2016,7 @@ function onModalSlider(val){
   document.getElementById('modal-no-read-btn').classList.remove('sel');
   document.getElementById('modal-pgslider').disabled=false;
   const stage=getStage(val);
-  const {color,label}=STAGE_COLORS[stage];
+  const {color,label}=stageColorsTable()[stage];
   const pct=((val-1)/49)*100;
   const slider=document.getElementById('modal-pgslider');
   slider.style.background=`linear-gradient(to right, ${color} ${pct}%, var(--sur2) ${pct}%)`;
@@ -1706,11 +2218,185 @@ function finishLogin(name){
   enterApp(name);
 }
 
+let navInitialized=false;
 async function enterApp(name){
   document.getElementById('app').style.display='';
   await doLogin(name);
   if(pendingPasswordHash){ S.passwordHash=pendingPasswordHash; saveLocal(); syncToFb(); }
   pendingPasswordHash=null;
+  if(!navInitialized){ initSwipe(); initNavGlass(); initStatScrub(); navInitialized=true; }
+  positionGlass(true);
+  window.scrollTo(0,0);
+}
+
+/* ══════════════════════════════
+   GRUP
+══════════════════════════════ */
+function generateGroupCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // karışabilecek harfler (0,O,1,I) çıkarıldı
+  let code='';
+  for(let i=0;i<6;i++) code+=chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+
+function setGrupMsg(text){
+  const el=document.getElementById('grup-msg');
+  el.textContent=text||'';
+  el.className='msg msg-warn'+(text?' on':'');
+}
+
+async function createGroup(){
+  const nameInp=document.getElementById('grup-create-name');
+  const groupName=nameInp.value.trim();
+  if(groupName.length<2){ setGrupMsg('Grup adı en az 2 karakter olmalı.'); return; }
+
+  spin(true);
+  let code=generateGroupCode();
+  let existing=await fbGet('/groups/'+code);
+  let tries=0;
+  while(existing && tries<5){ code=generateGroupCode(); existing=await fbGet('/groups/'+code); tries++; }
+
+  await fbSet('/groups/'+code,{
+    name:groupName, createdBy:S.name, createdAt:Date.now(),
+    members:{[safeKey(S.name)]:S.name}
+  });
+
+  S.groupCode=code;
+  saveLocal(); syncToFb();
+  spin(false);
+  nameInp.value='';
+  renderGroupTab();
+}
+
+async function joinGroup(){
+  const codeInp=document.getElementById('grup-join-code');
+  const code=codeInp.value.trim().toUpperCase();
+  if(code.length!==6){ setGrupMsg('Kod 6 haneli olmalı.'); return; }
+
+  spin(true);
+  const group=await fbGet('/groups/'+code);
+  if(!group){ setGrupMsg('Böyle bir grup bulunamadı.'); spin(false); return; }
+
+  group.members=group.members||{};
+  group.members[safeKey(S.name)]=S.name;
+  await fbSet('/groups/'+code,group);
+
+  S.groupCode=code;
+  saveLocal(); syncToFb();
+  spin(false);
+  codeInp.value='';
+  renderGroupTab();
+}
+
+async function leaveGroup(){
+  if(!confirm('Gruptan ayrılmak istediğine emin misin?')) return;
+  const code=S.groupCode;
+  if(code){
+    const group=await fbGet('/groups/'+code);
+    if(group && group.members){
+      delete group.members[safeKey(S.name)];
+      await fbSet('/groups/'+code,group);
+    }
+  }
+  S.groupCode=null;
+  saveLocal(); syncToFb();
+  renderGroupTab();
+}
+
+function copyGroupCode(){
+  const code=S.groupCode;
+  if(!code) return;
+  navigator.clipboard?.writeText(code).then(()=>{
+    const btn=document.querySelector('.grup-copy-btn');
+    const original=btn.textContent;
+    btn.textContent='Kopyalandı';
+    setTimeout(()=>{ btn.textContent=original; },1500);
+  }).catch(()=>{});
+}
+
+function loadGroupTab(){
+  document.getElementById('grup-create-name').value='';
+  document.getElementById('grup-join-code').value='';
+  setGrupMsg('');
+  renderGroupTab();
+}
+
+/* Zincirdeki toplam gün sayısı (tüm aşamalar boyunca) — grup üyelerini sıralamak için */
+function totalChainDay(levelIndex, streak){
+  const doneDays=LEVELS.slice(0,levelIndex||0).reduce((a,l)=>a+l.days,0)+(streak||0);
+  const totalDays=LEVELS.reduce((a,l)=>a+l.days,0);
+  return {doneDays, totalDays};
+}
+
+async function renderGroupTab(){
+  const emptyState=document.getElementById('grup-empty-state');
+  const activeState=document.getElementById('grup-active-state');
+
+  if(!S.groupCode){
+    emptyState.style.display='';
+    activeState.style.display='none';
+    return;
+  }
+  emptyState.style.display='none';
+  activeState.style.display='';
+
+  spin(true);
+  const group=await fbGet('/groups/'+S.groupCode);
+  if(!group){
+    S.groupCode=null; saveLocal(); syncToFb();
+    spin(false);
+    renderGroupTab();
+    return;
+  }
+
+  document.getElementById('grup-name-display').textContent=group.name;
+  document.getElementById('grup-code-display').textContent=S.groupCode;
+
+  const memberNames=Object.values(group.members||{});
+  const membersData=[];
+  for(const name of memberNames){
+    const data=await fbGet('/book_members/'+safeKey(name));
+    membersData.push(data || {name,levelIndex:0,streak:0,todayLogged:false});
+  }
+  spin(false);
+
+  membersData.sort((a,b)=>{
+    const ta=totalChainDay(a.levelIndex,a.streak), tb=totalChainDay(b.levelIndex,b.streak);
+    return tb.doneDays-ta.doneDays;
+  });
+
+  const listEl=document.getElementById('grup-members-list');
+  if(!membersData.length){
+    listEl.innerHTML='<div class="empty-grp">Henüz üye yok.</div>';
+    return;
+  }
+
+  listEl.innerHTML='';
+  membersData.forEach((m,i)=>{
+    const lvl=LEVELS[Math.min(m.levelIndex||0,LEVELS.length-1)];
+    const isMe=m.name===S.name;
+    const isLeader=i===0 && membersData.length>1;
+    const {doneDays,totalDays}=totalChainDay(m.levelIndex,m.streak);
+    const prog=Math.round(doneDays/totalDays*100);
+    const initials=(m.name||'?').slice(0,2).toUpperCase();
+    const todayOk=m.todayLogged && m.todayDate===todayStr();
+
+    const div=document.createElement('div');
+    div.className='mc'+(isMe?' me':'')+(isLeader?' gld':'');
+    div.innerHTML=`
+      <div class="rw"><div class="user-avatar-btn" style="width:40px;height:40px;font-size:14px">${initials}</div></div>
+      <div class="mi">
+        <div class="mnr">
+          <span class="mn">${m.name}</span>
+          ${isMe?'<span class="mtag me-tag">Sen</span>':''}
+          ${isLeader?'<span class="mtag gld-tag">🏆</span>':''}
+        </div>
+        <div class="ms">${lvl.label.split('—')[0].trim()} ${todayOk?'· Bugün okudu':'· Bugün henüz yok'}</div>
+        <div class="mbb"><div class="mbf" style="width:${prog}%"></div></div>
+      </div>
+      <div class="stk"><div class="stn">${doneDays}</div><div class="stl">/${totalDays} gün</div></div>`;
+    listEl.appendChild(div);
+  });
 }
 
 /* ══════════════════════════════
