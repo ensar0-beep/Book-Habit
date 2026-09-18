@@ -40,7 +40,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .quick-btns button.active{border-color:var(--thumb-color,var(--grn));color:var(--thumb-color,var(--grn));background:var(--grn-dim)}
 
 /* ZİNCİR */
-.chain-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:18px 16px 14px;margin-bottom:14px}
+.chain-card{background:transparent;border:none;border-radius:0;padding:8px 0 4px;margin-bottom:8px}
 .chain-track{display:flex;gap:3px;height:26px;border-radius:8px;overflow:hidden;margin-bottom:8px}
 .chain-seg{position:relative;display:flex;gap:2px}
 .chain-day{flex:1;background:var(--sur2);transition:background .3s;min-width:3px}
@@ -285,6 +285,11 @@ input[type=range].pgslider::-moz-range-thumb{
 .sec-lbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);margin-bottom:9px;margin-top:4px}
 
 .lvi{border-radius:var(--rs);padding:13px 15px;margin-bottom:8px;transition:all .2s}
+
+/* Tamamlanan/kilitli aşamalar: tek satırlık sıkı kart (bar + alt satır yok) */
+.lvi.compact{padding:10px 15px;margin-bottom:6px}
+.lvi.compact .lvr{margin-bottom:0}
+.lvi.compact .lvn{font-size:12px}
 
 /* Kilitli: soluk, düz, arka plana yakın */
 .lvi.locked{background:var(--sur2);border:1px solid var(--bor);opacity:.55}
@@ -1741,17 +1746,21 @@ function renderChain(){
 function renderLevels(){
   const c=document.getElementById('lvls');c.innerHTML='';
   LEVELS.forEach((lvl,i)=>{
-    const done=i<S.levelIndex,act=i===S.levelIndex,locked=!done&&!act;
-    const prog=done?1:act?Math.min(S.streak/lvl.days,1):0;
-    const show=done?lvl.days:act?S.streak:0;
+    const done=i<S.levelIndex,act=i===S.levelIndex;
     const d=document.createElement('div');
-    d.className='lvi'+(act?' act':done?' done':' locked');
-    let cc='cl',ct='Kilitli';
-    if(act){cc='ca';ct='Aktif';}
-    if(done){cc='cd';ct='✓ Tamamlandı';}
-    d.innerHTML=`<div class="lvr"><span class="lvn">${lvl.label}</span><span class="chip ${cc}">${ct}</span></div>
-    <div class="bb"><div class="bf ${done?'bd':act?'ba':'bk'}" style="width:${Math.round(prog*100)}%"></div></div>
-    <div class="lvm"><span>${show}/${lvl.days} gün</span><span>${i<LEVELS.length-1?'Sonraki: '+LEVELS[i+1].label.split('—')[0].trim():'Son aşama'}</span></div>`;
+    if(act){
+      const prog=Math.min(S.streak/lvl.days,1);
+      d.className='lvi act';
+      d.innerHTML=`<div class="lvr"><span class="lvn">${lvl.label}</span><span class="chip ca">Aktif</span></div>
+      <div class="bb"><div class="bf ba" style="width:${Math.round(prog*100)}%"></div></div>
+      <div class="lvm"><span>${S.streak}/${lvl.days} gün</span><span>${i<LEVELS.length-1?'Sonraki: '+LEVELS[i+1].label.split('—')[0].trim():'Son aşama'}</span></div>`;
+    } else if(done){
+      d.className='lvi done compact';
+      d.innerHTML=`<div class="lvr"><span class="lvn">${lvl.label}</span><span class="chip cd">✓ ${lvl.days}/${lvl.days} gün</span></div>`;
+    } else {
+      d.className='lvi locked compact';
+      d.innerHTML=`<div class="lvr"><span class="lvn">${lvl.label}</span><span class="chip cl">${lvl.days} gün</span></div>`;
+    }
     c.appendChild(d);
   });
 }
